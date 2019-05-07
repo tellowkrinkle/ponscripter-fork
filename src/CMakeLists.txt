@@ -1,4 +1,4 @@
-add_executable(embed
+add_executable(embed EXCLUDE_FROM_ALL
 	embed.cpp
 )
 
@@ -96,6 +96,12 @@ target_link_libraries(ponscr
 		SDL2::Mixer
 		SDL2::SMPEG
 		ZLIB::ZLIB)
+
+if (ENABLE_GAME_CONTROLLERS)
+	target_compile_definitions(ponscr
+		PRIVATE
+			ENABLE_JOYSTICK)
+endif ()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	target_compile_definitions(ponscr
