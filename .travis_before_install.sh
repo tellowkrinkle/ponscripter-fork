@@ -1,7 +1,17 @@
-if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-	sudo apt-get update -qq
-	sudo apt-get install -y libasound2-dev
+set -e
+
+if [ -z "$STEAMLESS" ] && [ -z "$SSH_KEY" ]; then
+	echo "Can't get steam API without SSH key, skipping"
+	exit 0
 fi
+
+case "$TRAVIS_OS_NAME" in
+linux)
+	sudo apt-get update -qq
+	sudo apt-get install -y libasound2-dev ;;
+windows)
+	choco install -y zip unzip ;;
+esac
 
 if [ -n "$SSH_KEY" ]; then
 	echo "${SSH_KEY}" | base64 --decode > key
@@ -9,6 +19,14 @@ if [ -n "$SSH_KEY" ]; then
 fi
 
 if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
+	export STEAM="-steam"
+	if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+		export STEAM_RUNTIME_HOST_ARCH=$(dpkg --print-architecture)
+		export STEAM_RUNTIME_ROOT="$(pwd)/steam/runtime/amd64"
+		export STEAM_RUNTIME_TARGET_ARCH=amd64
+		export PATH="$(pwd)/steam/bin:$PATH"
+	fi
+
 	# Steam SDK
 	scp -o StrictHostKeyChecking=no -i key "${DOWNLOAD_SERVER}/steamworks_sdk_129a.zip" . 2>/dev/null
 	unzip -d src/extlib/src/steam-sdk/ steamworks_sdk_129a.zip
@@ -33,4 +51,17 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		echo "Downloading http://media.steampowered.com/client/runtime/steam-runtime-dev-release_latest.tar.xz"
 		curl "http://media.steampowered.com/client/runtime/steam-runtime-dev-release_latest.tar.xz" | tar -xJf - --strip-components=1 -C steam/runtime
 	fi
+elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
+	[[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64
+	choco uninstall -y mingw
+	choco upgrade --no-progress -y msys2
+	export msys2='cmd //C RefreshEnv.cmd '
+	export msys2+='& set MSYS=winsymlinks:nativestrict '
+	export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
+	export mingw64="$msys2 -mingw64 -full-path -here -c "\"\$@"\" --"
+	export mingw32="$msys2 -mingw32 -full-path -here -c "\"\$@"\" --"
+	export msys2+=" -msys2 -c "\"\$@"\" --"
+	$msys2 pacman --sync --noconfirm --needed mingw-w64-i686-gcc make autoconf automake-wrapper
+	## Install more MSYS2 packages from https://packages.msys2.org/base here
+	taskkill //IM gpg-agent.exe //F || true # https://travis-ci.community/t/4967
 fi
