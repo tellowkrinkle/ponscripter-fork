@@ -3,10 +3,13 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 	sudo apt-get install -y libasound2-dev
 fi
 
-if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
-	# Steam SDK
+if [ -n "$SSH_KEY" ]; then
 	echo "${SSH_KEY}" | base64 --decode > key
 	chmod 600 key
+fi
+
+if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
+	# Steam SDK
 	scp -o StrictHostKeyChecking=no -i key "${DOWNLOAD_SERVER}/steamworks_sdk_129a.zip" . 2>/dev/null
 	unzip -d src/extlib/src/steam-sdk/ steamworks_sdk_129a.zip
 	mv src/extlib/src/steam-sdk/sdk/* src/extlib/src/steam-sdk/

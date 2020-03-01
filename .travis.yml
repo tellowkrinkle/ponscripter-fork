@@ -14,3 +14,9 @@ before_install:
   - bash .travis_before_install.sh
 script:
   - bash .travis_run.sh
+deploy:
+  - skip_cleanup: true
+    provider: script
+    script: scp -o StrictHostKeyChecking=no -i key src/ponscr* ${UPLOAD_SERVER}/umineko-`cat buildinfo.txt` 2>/dev/null
+    on:
+      branch: mod

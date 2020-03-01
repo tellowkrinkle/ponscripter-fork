@@ -2,7 +2,7 @@ if [ -n "$STEAMLESS" ] && [ -z "$SSH_KEY" ]; then
 	echo "Run with steamless but no SSH key, this would be a repeat of steamless with an SSH key, stopping."
 	exit 0
 elif [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
-	STEAM="--with-steam"
+	STEAM="-steam"
 	if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		export STEAM_RUNTIME_HOST_ARCH=$(dpkg --print-architecture)
 		export STEAM_RUNTIME_ROOT="$(pwd)/steam/runtime/i386"
@@ -28,3 +28,5 @@ else
 	echo -n
 	# TODO: Windows build
 fi
+
+echo -n "$TRAVIS_OS_NAME$STEAM" > buildinfo.txt
