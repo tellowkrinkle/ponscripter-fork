@@ -16,7 +16,7 @@ if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-	sudo apt-get install -y libbz2-dev libvorbis-dev libfreetype6-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-dev libgles2-mesa-dev libglu1-mesa-dev
+	sudo apt-get install -y chrpath libbz2-dev libvorbis-dev libfreetype6-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-dev libgles2-mesa-dev libglu1-mesa-dev
 	if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 		# For i386 steam builds, we build x86_64
 		# sudo dpkg --add-architecture i386
