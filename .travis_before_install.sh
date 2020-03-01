@@ -13,8 +13,10 @@ if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 	scp -o StrictHostKeyChecking=no -i key "${DOWNLOAD_SERVER}/steamworks_sdk_129a.zip" . 2>/dev/null
 	unzip -d src/extlib/src/steam-sdk/ steamworks_sdk_129a.zip
 	mv src/extlib/src/steam-sdk/sdk/* src/extlib/src/steam-sdk/
+fi
 
-	if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+	if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 		sudo dpkg --add-architecture i386
 		sudo apt-get update -qq
 		sudo apt-get install -y libbz2-dev:i386 libfreetype6-dev:i386 libsdl2-mixer-dev:i386 libsdl2-image-dev:i386 libsdl2-dev:i386 libpulse-dev:i386 libavahi-client-dev:i386 libgles2-mesa-dev:i386 libglu1-mesa-dev:i386 libgl1-mesa-dev:i386 libpng-dev:i386 
@@ -25,5 +27,7 @@ if [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 		done
 		mkdir steam/runtime
 		curl "http://media.steampowered.com/client/runtime/steam-runtime-dev-release_latest.tar.xz" | tar -xJf - --strip-components=1 -C steam/runtime
+	else
+		sudo apt-get install -y libbz2-dev libvorbis-dev libfreetype6-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-dev libgles2-mesa-dev libglu1-mesa-dev
 	fi
 fi

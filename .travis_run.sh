@@ -21,12 +21,17 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		run.sh ./configure --with-external-sdl-mixer $STEAM
 		run.sh make
 	else
-		./configure --with-internal-libs
-		make
+		mkdir src/extlib/include src/extlib/lib
+		./configure
+		LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/lib64:." make
 	fi
 else
 	echo -n
 	# TODO: Windows build
 fi
+
+cd src
+zip -9 ../ponscr.zip ponscr*
+cd ..
 
 echo -n "$TRAVIS_OS_NAME$STEAM" > buildinfo.txt
