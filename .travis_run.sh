@@ -5,8 +5,8 @@ elif [ -z "$STEAMLESS" ] && [ -n "$SSH_KEY" ]; then
 	STEAM="-steam"
 	if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		export STEAM_RUNTIME_HOST_ARCH=$(dpkg --print-architecture)
-		export STEAM_RUNTIME_ROOT="$(pwd)/steam/runtime/i386"
-		export STEAM_RUNTIME_TARGET_ARCH=i386
+		export STEAM_RUNTIME_ROOT="$(pwd)/steam/runtime/amd64"
+		export STEAM_RUNTIME_TARGET_ARCH=amd64
 		export PATH="$(pwd)/steam/bin:$PATH"
 	fi
 fi
@@ -19,7 +19,7 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		# Freetype header search is slightly broken, "fix" it by soft linking it to the expected place
 		sudo ln -s /usr/include/freetype2 /usr/include/freetype2/freetype
 		run.sh ./configure --with-external-sdl-mixer $STEAM
-		run.sh make
+		LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/lib64:." run.sh make
 	else
 		mkdir src/extlib/include src/extlib/lib
 		# Program seems to break (testing with Ubuntu 18.04) with internal SDL, so using external SDL
