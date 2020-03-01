@@ -22,7 +22,10 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		run.sh make
 	else
 		mkdir src/extlib/include src/extlib/lib
-		./configure
+		# Program seems to break (testing with Ubuntu 18.04) with internal SDL, so using external SDL
+		# On the other hand, GOG copy is missing libpng12 so on systems with a newer libpng the game doesn't work
+		# Fix that by using internal sdlimage
+		./configure --with-internal-sdl-image
 		LDFLAGS="-Wl,-rpath,\\\$\$ORIGIN/lib64:." make
 	fi
 else
