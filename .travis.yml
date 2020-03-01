@@ -1,15 +1,12 @@
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      language: cpp
-      env: STEAMLESS=YES
-    - os: linux
-      dist: trusty
-      language: cpp
-    - os: osx
-      osx_image: xcode9.4
-      language: cpp
+language: cpp
+os:
+  - linux
+  - osx
+dist: trusty
+osx_image: xcode9.4
+env: 
+  - STEAMLESS=YES
+  - ""
 before_install:
   - bash .travis_before_install.sh
 script:
@@ -20,3 +17,8 @@ deploy:
     script: scp -o StrictHostKeyChecking=no -i key src/ponscr* ${UPLOAD_SERVER}/umineko-`cat buildinfo.txt` 2>/dev/null
     on:
       branch: mod
+  - skip_cleanup: true
+    provider: script
+    script: scp -o StrictHostKeyChecking=no -i key src/ponscr* ${UPLOAD_SERVER}/ciconia-`cat buildinfo.txt` 2>/dev/null
+    on:
+      branch: wh-mod
