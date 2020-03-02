@@ -3,8 +3,8 @@ add_executable(embed EXCLUDE_FROM_ALL
 )
 
 add_custom_command(
-	OUTPUT resources.cpp
-	COMMAND embed > ${CMAKE_CURRENT_BINARY_DIR}/resources.cpp
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/resources.cpp
+	COMMAND $<TARGET_FILE:embed> > ${CMAKE_CURRENT_BINARY_DIR}/resources.cpp
 	DEPENDS embed
 )
 
@@ -96,6 +96,11 @@ target_link_libraries(ponscr
 		SDL2::Mixer
 		SDL2::SMPEG
 		ZLIB::ZLIB)
+
+if (USE_STEAM)
+	target_link_libraries(ponscr PRIVATE Steam::Steam)
+	target_compile_definitions(ponscr PRIVATE STEAM)
+endif ()
 
 if (ENABLE_GAME_CONTROLLERS)
 	target_compile_definitions(ponscr
