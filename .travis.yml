@@ -24,7 +24,11 @@ deploy:
     on:
       branch: wh-mod
 before_cache:
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then $msys2 pacman --sync --clean --noconfirm; fi
+  - |-
+      if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+        $msys2 pacman --sync --clean --noconfirm
+        rm /C/tools/msys64/update.log /C/tools/msys64/var/log/pacman.log || true
+      fi
 cache:
   directories:
     - /C/tools/msys64
