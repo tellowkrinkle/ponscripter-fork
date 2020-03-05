@@ -9,21 +9,29 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 	./configure --unsupported-compiler --with-internal-libs $STEAM
 	make
 elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
+	LIBFOLDER="lib64"
 	if [ -n "$STEAM" ]; then
 		# Freetype header search is slightly broken, "fix" it by soft linking it to the expected place
 		sudo ln -s /usr/include/freetype2 /usr/include/freetype2/freetype
 		run.sh ./configure --with-external-sdl-mixer $STEAM
-		LDFLAGS="-Wl,-rpath,XORIGIN/lib64:." run.sh make
+		LDFLAGS="-Wl,-rpath,XORIGIN/$LIBFOLDER:." run.sh make
 	else
 		mkdir src/extlib/include src/extlib/lib
-		# Program seems to break (testing with Ubuntu 18.04) with internal SDL, so using external SDL
-		# On the other hand, GOG copy is missing libpng12 so on systems with a newer libpng the game doesn't work
-		# Fix that by using internal sdlimage
-		# For sdlmixer and freetype, ciconia ships with a broken libvorbis and libz, so this should get around that
-		./configure --with-internal-sdl-image --with-internal-sdl-mixer --with-internal-freetype
-		LDFLAGS="-Wl,-rpath,XORIGIN/lib64:." make
+		if [ "$TRAVIS_BRANCH" == "wh-mod" ]; then
+			# Ciconia comes with a lib64 directory full of broken stuff
+			# We'll try to build a binary with as few dependencies as possible but internal sdl is broken on linux
+			# Because of that, reference a new lib64 directory, leaving us the option of shipping a working libsdl later
+			./configure --with-internal-sdl-image --with-internal-sdl-mixer --with-internal-smpeg --with-internal-freetype --with-internal-bzip
+			LIBFOLDER="lib64real"
+		else
+			# Program seems to break (testing with Ubuntu 18.04) with internal SDL, so using external SDL
+			# On the other hand, GOG copy is missing libpng12 so on systems with a newer libpng the game doesn't work
+			# Fix that by using internal sdlimage
+			./configure --with-internal-sdl-image
+		fi
+		LDFLAGS="-Wl,-rpath,XORIGIN/$LIBFOLDER:." make
 	fi
-	chrpath -r "\$ORIGIN/lib64:." src/ponscr
+	chrpath -r "\$ORIGIN/$LIBFOLDER:." src/ponscr
 else
 	# Windows build
 	$mingw32 ./configure $STEAM
