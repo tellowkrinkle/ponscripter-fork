@@ -19,8 +19,8 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		# Program seems to break (testing with Ubuntu 18.04) with internal SDL, so using external SDL
 		# On the other hand, GOG copy is missing libpng12 so on systems with a newer libpng the game doesn't work
 		# Fix that by using internal sdlimage
-		# For sdlmixer, ciconia ships with a broken libvorbis, so this should get around that
-		./configure --with-internal-sdl-image --with-internal-sdl-mixer
+		# For sdlmixer and freetype, ciconia ships with a broken libvorbis and libz, so this should get around that
+		./configure --with-internal-sdl-image --with-internal-sdl-mixer --with-internal-freetype
 		LDFLAGS="-Wl,-rpath,XORIGIN/lib64:." make
 	fi
 	chrpath -r "\$ORIGIN/lib64:." src/ponscr
