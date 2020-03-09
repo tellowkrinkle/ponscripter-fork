@@ -8,6 +8,12 @@ fi
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 	./configure --unsupported-compiler --with-internal-libs $STEAM
 	make
+	mv src/ponscr ponscr64
+	make distclean
+	CC="clang -arch i386" CXX="clang++ -arch i386" ./configure --unsupported-compiler --with-internal-libs $STEAM
+	CFLAGS="-arch i386" LDFLAGS="-arch i386" make MACOSX_DEPLOYMENT_TARGET=10.5
+	mv src/ponscr ponscr32
+	lipo -create -output src/ponscr ponscr32 ponscr64
 elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 	LIBFOLDER="lib64"
 	if [ -n "$STEAM" ]; then
