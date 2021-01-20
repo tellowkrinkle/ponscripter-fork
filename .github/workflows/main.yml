@@ -70,3 +70,10 @@ jobs:
         with:
           name: ${{ steps.build.outputs.name }}
           path: ponscr.zip
+      - name: Deploy
+        run:
+          bash -c "([ "$TRAVIS_OS_NAME" != "linux" ] || sudo chown $USER key) && scp -o StrictHostKeyChecking=no -i key ponscr.zip ${UPLOAD_SERVER}/umineko-$(cat buildinfo.txt).zip 2> /dev/null"
+        env:
+          UPLOAD_SERVER: ${{ secrets.UPLOAD_SERVER }}
+        if: github.ref == 'refs/heads/mod' && env.UPLOAD_SERVER != null
+        shell: bash
