@@ -14,6 +14,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+      - name: Cache MSYS2
+        uses: actions/cache@v2
+        with:
+          path: C:\tools\msys64
+          key: msys2
+        if: startsWith(matrix.os, 'windows')
       - name: Initialize Environment
         env:
           OS: ${{ matrix.os }}
