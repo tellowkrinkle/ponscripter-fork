@@ -43,8 +43,7 @@
 // e.g.
 // lsp image2x,":b;bmp\image2x.png",2,325,230
 // lsp image2x,":ba;bmp\image2x.png",2,325,230
-// #define USE_2X_MODE
-#define USE_2X_MODE_OFF
+// 2x mode is now enabled at runtime by specifying `@2x` resources
 
 #if defined (USE_X86_GFX) && !defined(MACOSX)
 #include <cpuid.h>

@@ -280,13 +280,18 @@ public:
     VariableInfo current_variable;
 
     int screen_size;
-    enum { SCREEN_SIZE_640x480 = 0,
-           SCREEN_SIZE_800x600 = 1,
-           SCREEN_SIZE_400x300 = 2,
-           SCREEN_SIZE_320x240 = 3,
-           SCREEN_SIZE_960x600 = 4,
-           SCREEN_SIZE_w720    = 5,
-           SCREEN_SIZE_w1080   = 6 };
+    int res_multiplier;
+    enum {
+        SCREEN_SIZE_640x480,
+        SCREEN_SIZE_800x600,
+        SCREEN_SIZE_400x300,
+        SCREEN_SIZE_320x240,
+        SCREEN_SIZE_960x600,
+        SCREEN_SIZE_w360,
+        SCREEN_SIZE_w540,
+        SCREEN_SIZE_w720,
+        SCREEN_SIZE_w1080,
+    };
     int global_variable_border;
 
     pstring game_identifier;

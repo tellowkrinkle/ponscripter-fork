@@ -802,11 +802,6 @@ void PonscripterLabel::DoSetwindow(PonscripterLabel::WindowDef& def)
 
 void PonscripterLabel::setwindowCore()
 {
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     WindowDef wind;
     wind.left      = script_h.readIntValue() * res_multiplier;
     wind.top       = script_h.readIntValue() * res_multiplier;
@@ -1407,10 +1402,6 @@ int PonscripterLabel::mspCommand(const pstring& cmd)
     int ret = leaveTextDisplayMode();
     if (ret != RET_NOMATCH) return ret;
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
     // Haeleth extension: the form `msp NUM,NUM,NUM[,NUM]' is augmented
     // by the form `msp NUM,NUM' which modifies only the transparency.
     // Likewise `msp2 NUM,NUM,NUM,NUM,NUM,NUM[,NUM]' is augmented by
@@ -1795,11 +1786,6 @@ int PonscripterLabel::lspCommand(const pstring& cmd)
 //TODO: add support for "lsp2add" etc.
     int ret = leaveTextDisplayMode();
     if (ret != RET_NOMATCH) return ret;
-
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
 
     bool sprite2 = cmd == "lsp2" || cmd == "lsph2";
     bool hidden = cmd == "lsph" || cmd == "lsph2";
@@ -2302,11 +2288,6 @@ int PonscripterLabel::getspsizeCommand(const pstring& cmd)
 {
     int no = script_h.readIntValue();
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     script_h.readIntExpr().mutate(
         (sprite_info[no].pos.w * screen_ratio2 / screen_ratio1) /
         res_multiplier
@@ -2504,10 +2485,7 @@ int PonscripterLabel::getenterCommand(const pstring& cmd)
 
 int PonscripterLabel::getcursorposCommand(const pstring& cmd)
 {
-    int res_divider = 1;
-    #ifdef USE_2X_MODE
-    res_divider = 2;
-    #endif
+	int res_divider = res_multiplier;
     script_h.readIntExpr().mutate(int(floor(sentence_font.GetX() / res_divider)));
     script_h.readIntExpr().mutate(sentence_font.GetY() / res_divider);
     return RET_CONTINUE;
@@ -2785,11 +2763,6 @@ int PonscripterLabel::drawsp3Command(const pstring& cmd)
     int cell_no   = script_h.readIntValue();
     int alpha     = script_h.readIntValue();
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     int x         = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
     int y         = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
 
@@ -2827,11 +2800,6 @@ int PonscripterLabel::drawsp2Command(const pstring& cmd)
     int cell_no   = script_h.readIntValue();
     int alpha     = script_h.readIntValue();
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     AnimationInfo &si = sprite_info[sprite_no];
     si.pos.x   = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
     si.pos.y   = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
@@ -2856,11 +2824,6 @@ int PonscripterLabel::drawspCommand(const pstring& cmd)
     int sprite_no = script_h.readIntValue();
     int cell_no   = script_h.readIntValue();
     int alpha     = script_h.readIntValue();
-
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
 
     int x         = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
     int y         = script_h.readIntValue() * screen_ratio1 * res_multiplier / screen_ratio2;
@@ -3415,11 +3378,6 @@ int PonscripterLabel::bltCommand(const pstring& cmd)
     int sx, sy, sw, sh;
     int multiplier = 2;
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     dx = script_h.readIntValue() * screen_ratio1 / screen_ratio2 * res_multiplier;
     dy = script_h.readIntValue() * screen_ratio1 / screen_ratio2 * res_multiplier;
     dw = script_h.readIntValue() * screen_ratio1 / screen_ratio2 * res_multiplier;
@@ -3510,11 +3468,6 @@ int PonscripterLabel::endrollCommand(const pstring& cmd)
     int sx, sy, sw, sh;
     int interval, dist, count, multiplier = 2, timecounter = 0, amountcounter = 0;
     unsigned int lasttime, nexttime, starttime;
-
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
 
     dx = script_h.readIntValue() * screen_ratio1 / screen_ratio2 * res_multiplier;
     dy = script_h.readIntValue() * screen_ratio1 / screen_ratio2 * res_multiplier;

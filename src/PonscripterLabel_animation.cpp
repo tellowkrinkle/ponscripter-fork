@@ -274,11 +274,6 @@ void PonscripterLabel::parseTaggedString(AnimationInfo* anim, bool is_mask)
 
     anim->removeTag();
 
-    int res_multiplier = 1;
-    #ifdef USE_2X_MODE
-    res_multiplier = 2;
-    #endif
-
     int i;
     const char* buffer = anim->image_name;
     anim->num_of_cells = 1;

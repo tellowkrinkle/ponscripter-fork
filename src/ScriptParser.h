@@ -288,7 +288,7 @@ protected:
     /* ---------------------------------------- */
     /* Global definitions */
     int preferred_width;
-    int script_width, script_height;
+    int script_width, script_height, res_multiplier;
     uint16_t    screen_width, screen_height;
     int    screen_texture_width, screen_texture_height;
     int    screen_bpp;

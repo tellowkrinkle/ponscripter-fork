@@ -151,16 +151,16 @@ SDL_Surface *PonscripterLabel::loadImage(const pstring& filename,
         ret = retf;
     }
 
-    #ifdef USE_2X_MODE
-    int multiplier = twox ? 1 : 2;
-    SDL_Surface *retb = SDL_CreateRGBSurface(0, ret->w * multiplier, ret->h * multiplier, BPP, RMASK, GMASK, BMASK, AMASK);
-    SDL_BlitScaled(ret, NULL, retb, NULL);
+    if (res_multiplier != 1) {
+        int multiplier = twox ? 1 : res_multiplier;
+        SDL_Surface *retb = SDL_CreateRGBSurface(0, ret->w * multiplier, ret->h * multiplier, BPP, RMASK, GMASK, BMASK, AMASK);
+        SDL_BlitScaled(ret, NULL, retb, NULL);
 
-    SDL_FreeSurface( ret );
-    return retb;
-    #else
-    return ret;
-    #endif
+        SDL_FreeSurface( ret );
+        return retb;
+    } else {
+        return ret;
+    }
     
 }
 

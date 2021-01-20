@@ -68,6 +68,7 @@ ScriptHandler::ScriptHandler()
     arrays.clear();
 
     screen_size = SCREEN_SIZE_640x480;
+    res_multiplier = 2; // Default to 2x mode for Umineko
     global_variable_border = 200;
 
     // Prefer Ponscripter files over NScripter files, and prefer
@@ -1006,6 +1007,12 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
             } else if (!strncmp(buf, "320", 3)) {
                 screen_size = SCREEN_SIZE_320x240;
                 buf += 3;
+            } else if (!strncmp(buf, "w360", 4)) {
+                screen_size = SCREEN_SIZE_w360;
+                buf += 4;
+            } else if (!strncmp(buf, "w540", 4)) {
+                screen_size = SCREEN_SIZE_w540;
+                buf += 4;
             } else if (!strncmp(buf, "w720", 4)) {
                 screen_size = SCREEN_SIZE_w720;
                 buf += 4;
@@ -1017,6 +1024,12 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
                 buf += 3;
             }
 
+            if (!strncmp(buf, "@2x", 3)) {
+                res_multiplier = 2;
+                buf += 3;
+            } else {
+                res_multiplier = 1;
+            }
         }
         else if (!strncmp(buf, "value", 5)) {
             buf += 5;
