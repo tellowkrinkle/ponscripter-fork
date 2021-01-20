@@ -54,12 +54,19 @@ jobs:
           echo "mingw32=$mingw32" >> $GITHUB_ENV
         shell: bash
       - name: Build
+        id: build
         run: |
           if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -z "$STEAMLESS" ]; then
             docker run -v $PWD:/pons steambuild bash -c "mv /build/key /pons/key && mv /build/src/extlib/src/steam-sdk/* /pons/src/extlib/src/steam-sdk/ && . /build/env.txt && cd /pons && bash .travis_run.sh"
           else
             bash .travis_run.sh
           fi
+          echo "::set-output name=name::umineko-$(cat buildinfo.txt)"
         env: 
           GITHUB_ACTIONS: YES
         shell: bash
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: ponscr.zip
