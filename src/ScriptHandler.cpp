@@ -1045,12 +1045,11 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
                 buf++;
             if (*buf != '\n') buf += 3;
         }
-        else {
-            break;
-        }
 
-        if (*buf != ',') {
-            while (*buf++ != '\n') ;
+        while (*buf != ',' && *buf != '\n') {
+            buf++;
+        }
+        if (*buf++ == '\n') {
             break;
         }
 
