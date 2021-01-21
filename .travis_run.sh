@@ -25,7 +25,7 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		LDFLAGS="-Wl,-rpath,XORIGIN/$LIBFOLDER:." run.sh make
 	else
 		mkdir src/extlib/include src/extlib/lib
-		if [ "$TRAVIS_BRANCH" == "wh-mod" ]; then
+		if [ "$TRAVIS_BRANCH" == "wh-mod" ] || [ -n "$NODEP" ]; then
 			# Ciconia comes with a lib64 directory full of broken stuff
 			# We'll try to build a binary with as few dependencies as possible but internal sdl is broken on linux
 			# Because of that, reference a new lib64 directory, leaving us the option of shipping a working libsdl later
@@ -54,4 +54,4 @@ else
 fi
 cd ..
 
-echo -n "$TRAVIS_OS_NAME$STEAM" > buildinfo.txt
+echo -n "$TRAVIS_OS_NAME$STEAM$NODEP" > buildinfo.txt

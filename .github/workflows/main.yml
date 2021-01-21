@@ -9,8 +9,13 @@ jobs:
       matrix:
         steam: ["-steam", ""]
         os: [windows-2019, macos-10.15, ubuntu-20.04]
+        isinclude: [false] # Makes include add new jobs instead of editing existing ones
+        include:
+          - os: ubuntu-20.04
+            nodep: "-nodep"
+            isinclude: true
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }}${{ matrix.steam }}
+    name: ${{ matrix.os }}${{ matrix.steam }}${{ matrix.nodep }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -64,6 +69,7 @@ jobs:
           echo "::set-output name=name::umineko-$(cat buildinfo.txt)"
         env: 
           GITHUB_ACTIONS: YES
+          NODEP: ${{ matrix.nodep }}
         shell: bash
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
