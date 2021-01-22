@@ -1053,7 +1053,6 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
             break;
         }
 
-        ++buf;
         while (isawspace(*buf)) ++buf;
     }
 
