@@ -21,7 +21,8 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 	if [ -n "$STEAM" ]; then
 		# Freetype header search is slightly broken, "fix" it by soft linking it to the expected place
 		sudo ln -s /usr/include/freetype2 /usr/include/freetype2/freetype
-		run.sh ./configure --with-external-sdl-mixer $STEAM
+		# We ship steam build to people with GOG copies, so build with internal sdlimage (see below for details)
+		run.sh ./configure --with-external-sdl-mixer $STEAM --with-internal-sdl-image
 		LDFLAGS="-Wl,-rpath,XORIGIN/$LIBFOLDER:." run.sh make
 	else
 		mkdir src/extlib/include src/extlib/lib
