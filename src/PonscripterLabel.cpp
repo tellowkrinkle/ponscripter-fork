@@ -946,24 +946,59 @@ pstring Local_GetSavePath() // POSIX-ish version
 #ifdef STEAM
 
 pstring Steam_GetSavePath() {
-  if(SteamApps()) {
-      uint32 folderLen = PATH_MAX;
-      char *installFolder = (char *)malloc(folderLen + 1);
-      folderLen = SteamApps()->GetAppInstallDir(SteamUtils()->GetAppID(),
-                installFolder, folderLen);
-      if(folderLen > PATH_MAX) {
-          installFolder = (char *)realloc((void *)installFolder, folderLen);
-          folderLen = SteamApps()->GetAppInstallDir(SteamUtils()->GetAppID(),
-                    installFolder, folderLen);
-      }
-      pstring rv = pstring(installFolder) + "/saves/";
+    // Attempt to read the save path from saveloc.txt
+    // An empty saveloc.txt is created by the 07th-mod installer on steam installations
+    // In that case, if we can't connect to steam, alert the user to prevent it changing in the future (if they play with steam running later)
+    pstring saveloc = Local_GetSavePath();
+    if (saveloc.length() >= 6) {
+        saveloc.replace(saveloc.length() - 6, 6, "saveloc.txt");
+    }
 
-      if(makeFolder(&rv) == 0) {
-        return rv;
-      }
-  }
-  fprintf(stderr, "Unable to get steam's save path; falling back to relative save path.\n");
-  return Local_GetSavePath();
+    FILE* savelocfile = fopen(saveloc, "r");
+    char path[512];
+    pstring savelocContent;
+    path[0] = 0;
+    if (savelocfile) {
+        while (fread(path, 1, sizeof(path), savelocfile)) {
+            savelocContent += path;
+        }
+    }
+    fclose(savelocfile);
+    savelocContent = savelocContent.split('\n').front().trim();
+    if (savelocContent) {
+        return savelocContent;
+    }
+    
+    if(SteamApps()) {
+        uint32 folderLen = PATH_MAX;
+        char *installFolder = (char *)malloc(folderLen + 1);
+        folderLen = SteamApps()->GetAppInstallDir(SteamUtils()->GetAppID(),
+                                                  installFolder, folderLen);
+        if(folderLen > PATH_MAX) {
+            installFolder = (char *)realloc((void *)installFolder, folderLen);
+            folderLen = SteamApps()->GetAppInstallDir(SteamUtils()->GetAppID(),
+                                                      installFolder, folderLen);
+        }
+        pstring rv = pstring(installFolder) + "/saves/";
+        free(installFolder);
+
+        if(makeFolder(&rv) == 0) {
+            savelocfile = fopen(saveloc, "w");
+            if (savelocfile) {
+                fwrite((const char*)rv, rv.length(), 1, savelocfile);
+                fclose(savelocfile);
+            }
+            return rv;
+        }
+        savelocfile = NULL; // steam dir not writable, probably never will be
+    }
+
+    if (savelocfile) {
+        PonscripterMessage(Error, "Steam Not Running", "Steam needs to be running to detect the appropriate save data location.  Please relaunch the game with Steam.  If this isn't actually a steam copy of the game, delete the file " + saveloc);
+    }
+
+    fprintf(stderr, "Unable to get steam's save path; falling back to relative save path.\n");
+    return Local_GetSavePath();
 }
 
 #endif //STEAM
