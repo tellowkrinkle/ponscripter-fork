@@ -44,7 +44,7 @@ elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
 else
 	# Windows build
 	$mingw32 ./configure $STEAM
-	$mingw32 make
+	$mingw32 make -j2
 fi
 
 cd src
