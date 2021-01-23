@@ -1042,6 +1042,19 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
                 global_variable_border = global_variable_border * 10
 		                       + *buf++ - '0';
         }
+        else if (!strncmp(buf, "localsave", 9)) {
+            buf += 9;
+            if (*buf == '=') { buf++; }
+            const char* end = buf;
+            while (*end != ',' && *end != '\n') {
+                end++;
+            }
+            local_savedir = pstring(buf, end - buf);
+            if (!local_savedir.ends_with("/")) {
+                local_savedir += "/";
+            }
+            buf = end;
+        }
         else if (!strncmp(buf, "-*-", 3)) {
             buf++;
             while (*buf != '\n' &&

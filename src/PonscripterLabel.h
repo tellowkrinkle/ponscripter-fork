@@ -124,7 +124,7 @@ public:
     void setGameIdentifier(const char *gameid);
     void setMaskType(int mask_type) { png_mask_type = mask_type; }
 
-    pstring getSavePath(pstring gameid);
+    pstring getSavePath(pstring gameid, const pstring& local_savedir);
 
     Uint32 getRefreshRateDelay();
 

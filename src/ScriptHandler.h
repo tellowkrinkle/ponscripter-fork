@@ -296,6 +296,8 @@ public:
 
     pstring game_identifier;
     pstring save_path;
+    /// Alternative save directory used in local/steam mode (appended to exe directory)
+    pstring local_savedir;
     //Mion: savedir is set by savedirCommand, stores save files
     // and main stored gamedata files except envdata
     pstring savedir;

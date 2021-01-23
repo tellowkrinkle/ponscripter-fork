@@ -846,21 +846,17 @@ int makeFolder(pstring *path) {
 /* Local_GetSavePath() is the fallback for if steam is defined,
    but SteamAPI_Init failed, or if the user requests a local save dir */
 #ifdef WIN32
-pstring Local_GetSavePath()
+pstring Local_GetSavePathParent()
 {
     /* These defines are used elsewhere. They are normally created in the non-steam GetSavePath fn */
 #define CSIDL_COMMON_APPDATA 0x0023 // for [Profiles]\All Users\Application Data
 #define CSIDL_APPDATA        0x001a // for [Profiles]\[User]\Application Data
     /* Assume the working-dir is where we want our save path
        . We could use GetModuleFileNameW if this is an issue */
-    pstring rv = "saves/";
-    if(makeFolder(&rv) == 0) {
-      return rv;
-    }
     return "";
 }
 #elif defined(MACOSX)
-pstring Local_GetSavePath()
+pstring Local_GetSavePathParent()
 {
     pstring rv = "";
 
@@ -897,20 +893,10 @@ pstring Local_GetSavePath()
         }
     }
 
-    rv += "saves/";
-
-    if (makeFolder(&rv) == 0)
-        return rv;
-
-    // If that fails, die.
-    CFOptionFlags *alert_flags;
-    CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL,
-        CFSTR("Save Directory Failure"),
-        CFSTR("Could not create save directory."), NULL, NULL, NULL, alert_flags);
-    exit(1);
+    return rv;
 }
 #else // LINUX and hope everything else is linux-like
-pstring Local_GetSavePath() // POSIX-ish version
+pstring Local_GetSavePathParent() // POSIX-ish version
 {
     char *programPath = (char *)malloc(PATH_MAX);
     size_t pathLen = PATH_MAX;
@@ -933,26 +919,28 @@ pstring Local_GetSavePath() // POSIX-ish version
     char *programDir = strdup(dirname(programPath));
     free(programPath);
 
-    pstring rv = pstring(programDir) + "/saves/";
+    pstring rv = pstring(programDir) + "/";
     free(programDir);
 
-    if(makeFolder(&rv) == 0)
-        return rv;
-
-    return "";
+    return rv;
 }
 #endif //WIN32 / OSX / LINUX
+pstring Local_GetSavePath(const pstring& local_savedir) {
+    pstring rv = Local_GetSavePathParent() + (local_savedir ? local_savedir : "saves/");
+    if (makeFolder(&rv) != 0) {
+        PonscripterMessage(Error, "Unable to create save directory", "Unable to create save directory at " + rv + ", will not be able to save");
+    }
+    return rv;
+}
 
 #ifdef STEAM
 
-pstring Steam_GetSavePath() {
+pstring Steam_GetSavePath(const pstring& local_savedir) {
     // Attempt to read the save path from saveloc.txt
     // An empty saveloc.txt is created by the 07th-mod installer on steam installations
     // In that case, if we can't connect to steam, alert the user to prevent it changing in the future (if they play with steam running later)
-    pstring saveloc = Local_GetSavePath();
-    if (saveloc.length() >= 6) {
-        saveloc.replace(saveloc.length() - 6, 6, "saveloc.txt");
-    }
+    pstring savedirdir = Local_GetSavePathParent();
+    pstring saveloc = savedirdir + "saveloc.txt";
 
     FILE* savelocfile = fopen(saveloc, "r");
     char path[512];
@@ -962,8 +950,8 @@ pstring Steam_GetSavePath() {
         while (fread(path, 1, sizeof(path), savelocfile)) {
             savelocContent += path;
         }
+        fclose(savelocfile);
     }
-    fclose(savelocfile);
     savelocContent = pstring(pstr_split_first(savelocContent, '\n').first).trim();
     if (savelocContent) {
         return savelocContent;
@@ -979,7 +967,7 @@ pstring Steam_GetSavePath() {
             folderLen = SteamApps()->GetAppInstallDir(SteamUtils()->GetAppID(),
                                                       installFolder, folderLen);
         }
-        pstring rv = pstring(installFolder) + "/saves/";
+        pstring rv = pstring(installFolder) + (local_savedir ? "/" + local_savedir : "/saves/");
         free(installFolder);
 
         if(makeFolder(&rv) == 0) {
@@ -998,7 +986,7 @@ pstring Steam_GetSavePath() {
     }
 
     fprintf(stderr, "Unable to get steam's save path; falling back to relative save path.\n");
-    return Local_GetSavePath();
+    return Local_GetSavePath(local_savedir);
 }
 
 #endif //STEAM
@@ -1105,12 +1093,12 @@ pstring Platform_GetSavePath(const pstring& gameid)
 }
 #endif
 
-pstring PonscripterLabel::getSavePath(const pstring gameid) {
+pstring PonscripterLabel::getSavePath(const pstring gameid, const pstring& local_savedir) {
 #ifdef STEAM
-    return Steam_GetSavePath();
+    return Steam_GetSavePath(local_savedir);
 #else
     #ifdef LOCAL_SAVEDIR
-        return Local_GetSavePath();
+        return Local_GetSavePath(local_savedir);
     #else
         #ifdef WIN32
         return Platform_GetSavePath(gameid, current_user_appdata);
@@ -1227,7 +1215,7 @@ int PonscripterLabel::init(const char* preferred_script)
 
     // Try to determine an appropriate location for saved games.
     if (!script_h.save_path)
-        script_h.save_path = getSavePath(getGameId(script_h));
+        script_h.save_path = getSavePath(getGameId(script_h), script_h.local_savedir);
 
     // If we couldn't find anything obvious, fall back on ONScripter
     // behaviour of putting saved games in the archive path.
