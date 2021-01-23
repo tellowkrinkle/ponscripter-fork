@@ -73,6 +73,8 @@ ScriptHandler::ScriptHandler()
 
     // Prefer Ponscripter files over NScripter files, and prefer
     // unencoded files over encoded files.
+    script_filenames.push_back(ScriptFilename("0.u",          0, UTF8));
+    script_filenames.push_back(ScriptFilename("00.u",         0, UTF8));
     script_filenames.push_back(ScriptFilename("0.utf",        0, UTF8));
     script_filenames.push_back(ScriptFilename("00.utf",       0, UTF8));
     script_filenames.push_back(ScriptFilename("0.txt",        0, CP932));
@@ -839,6 +841,7 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
     encoding_t enc = UTF8;
 
     pstring fname = "";
+    pstring ext = "";
     while ((fp == NULL) && (n<archive_path->get_num_paths())) {
         script_path = archive_path->get_path(n++);
 
@@ -885,6 +888,7 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
             for (ScriptFilename::iterator ft = script_filenames.begin();
                  ft != script_filenames.end(); ++ft) {
                 if ((fp = fileopen(script_path, ft->filename, "rb")) != NULL) {
+                    ext = pstr_split_last(ft->filename, '.').second;
                     encrypt_mode = ft->encryption;
                     enc = ft->_encoding;
                     break;
@@ -918,10 +922,10 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
     if (encrypt_mode == 0 && !fname) {
         fclose(fp);
         for (int i = 1; i < 100; i++) {
-	    pstring filename;
-	    filename.format("%d.%s", i, enc == UTF8 ? "utf" : "txt");
+            pstring filename;
+            filename.format("%d.%s", i, (const char*)ext);
             if ((fp = fileopen(script_path, filename, "rb")) == NULL) {
-		filename.format("%02d.%s", i, enc == UTF8 ? "utf" : "txt");
+                filename.format("%02d.%s", i, (const char*)ext);
                 fp = fileopen(script_path, filename, "rb");
             }
 
@@ -947,10 +951,10 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
     }
     else {
         for (int i = 0; i < 100; i++) {
-	    pstring filename;
-	    filename.format("%d.%s", i, enc == UTF8 ? "utf" : "txt");
+            pstring filename;
+            filename.format("%d.%s", i, (const char*)ext);
             if ((fp = fileopen(script_path, filename, "rb")) == NULL) {
-		filename.format("%02d.%s", i, enc == UTF8 ? "utf" : "txt");
+                filename.format("%02d.%s", i, (const char*)ext);
                 fp = fileopen(script_path, filename, "rb");
             }
 
