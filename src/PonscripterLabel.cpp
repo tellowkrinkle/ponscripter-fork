@@ -964,7 +964,7 @@ pstring Steam_GetSavePath() {
         }
     }
     fclose(savelocfile);
-    savelocContent = savelocContent.split('\n').front().trim();
+    savelocContent = pstring(pstr_split_first(savelocContent, '\n').first).trim();
     if (savelocContent) {
         return savelocContent;
     }
