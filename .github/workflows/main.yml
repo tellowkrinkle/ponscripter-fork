@@ -72,8 +72,9 @@ jobs:
           name: ${{ steps.build.outputs.name }}
           path: ponscr.zip
       - name: Deploy
-        run:
-          bash -c "([ "$TRAVIS_OS_NAME" != "linux" ] || sudo chown $USER key) && scp -o StrictHostKeyChecking=no -i key ponscr.zip ${UPLOAD_SERVER}/umineko-$(cat buildinfo.txt).zip 2> /dev/null"
+        run: |
+          bash -c "([ "$TRAVIS_OS_NAME" != "linux" ] || sudo chown $USER key) && scp -o StrictHostKeyChecking=no -i key ponscr-question.zip ${UPLOAD_SERVER}/umineko_exe/umineko-$(cat buildinfo.txt)-question.zip 2> /dev/null"
+          bash -c "([ "$TRAVIS_OS_NAME" != "linux" ] || sudo chown $USER key) && scp -o StrictHostKeyChecking=no -i key ponscr-answer.zip ${UPLOAD_SERVER}/umineko_exe/umineko-$(cat buildinfo.txt)-answer.zip 2> /dev/null"
         env:
           UPLOAD_SERVER: ${{ secrets.UPLOAD_SERVER }}
         if: github.ref == 'refs/heads/mod' && env.UPLOAD_SERVER != null
