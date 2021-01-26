@@ -70,7 +70,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.build.outputs.name }}
-          path: ponscr.zip
+          path: |
+            ponscr-question.zip
+            ponscr-answer.zip
       - name: Deploy
         run: |
           bash -c "([ "$TRAVIS_OS_NAME" != "linux" ] || sudo chown $USER key) && scp -o StrictHostKeyChecking=no -i key ponscr-question.zip ${UPLOAD_SERVER}/umineko_exe/umineko-$(cat buildinfo.txt)-question.zip 2> /dev/null"
