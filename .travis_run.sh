@@ -49,9 +49,22 @@ fi
 
 cd src
 if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-	zip -9 ../ponscr.zip ponscr.exe
+	cp ponscr.exe Umineko1to4.exe
+	cp ponscr.exe Umineko5to8.exe
+	zip -9 ../ponscr-question.zip Umineko1to4.exe
+	zip -9 ../ponscr-answer.zip Umineko5to8.exe
+elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
+	cp ponscr Umineko1to4
+	cp ponscr Umineko5to8
+	zip -9 ../ponscr-question.zip Umineko1to4
+	zip -9 ../ponscr-answer.zip Umineko5to8
 else
-	zip -9 ../ponscr.zip ponscr
+	wget https://07th-mod.com/Beato/pre_2021_exe/umineko-mac-exe-base.zip
+	unzip umineko-mac-exe-base.zip
+	cp ponscr Umineko1to4.app/Contents/MacOS/Umineko4
+	cp ponscr Umineko5to8.app/Contents/MacOS/Umineko8
+	zip -9 -r ../ponscr-question.zip Umineko1to4.app
+	zip -9 -r ../ponscr-answer.zip Umineko5to8.app
 fi
 cd ..
 
