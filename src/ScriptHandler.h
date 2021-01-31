@@ -281,6 +281,13 @@ public:
 
     int screen_size;
     int res_multiplier;
+    /// Which things should `res_multiplier` apply to?
+    /// @Note When adding new enum values, order them by the amount of things `res_multiplier` should change (rather than trying to preserve old IDs) so that individual usages can depend on <= checks rather than individually checking enum values
+    enum MultiplierStyle {
+        UMINEKO = 0, ///< Apply multiplier to things identically to the build used for the Steam release of Umineko
+        FULL    = 1, ///< Apply multiplier to all things (for maximum compatibility with nscripter upscales)
+    };
+    MultiplierStyle multiplier_style;
     enum {
         SCREEN_SIZE_640x480,
         SCREEN_SIZE_800x600,

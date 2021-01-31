@@ -69,6 +69,7 @@ ScriptHandler::ScriptHandler()
 
     screen_size = SCREEN_SIZE_640x480;
     res_multiplier = 2; // Default to 2x mode for Umineko
+    multiplier_style = UMINEKO;
     global_variable_border = 200;
 
     // Prefer Ponscripter files over NScripter files, and prefer
@@ -1033,6 +1034,13 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
                 buf += 3;
             } else {
                 res_multiplier = 1;
+            }
+
+            if (!strncmp(buf, "@umineko", 8)) {
+                buf += 8;
+                multiplier_style = UMINEKO;
+            } else {
+                multiplier_style = FULL;
             }
         }
         else if (!strncmp(buf, "value", 5)) {

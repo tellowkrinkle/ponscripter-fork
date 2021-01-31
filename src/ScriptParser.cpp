@@ -337,6 +337,7 @@ int ScriptParser::open(const char* preferred_script)
     screen_ratio1 = 1;
     screen_ratio2 = 1;
     res_multiplier = script_h.res_multiplier;
+    multiplier_style = script_h.multiplier_style;
 
     switch (script_h.screen_size) {
     case ScriptHandler::SCREEN_SIZE_960x600:
