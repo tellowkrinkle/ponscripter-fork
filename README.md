@@ -74,7 +74,7 @@ record straight!
 
 The 07th-Mod fork of this repo is brought to you with huge thanks to everyone mentioned above, but the latest changes are being maintained by the [07th-Mod](https://07th-mod.com) team. If you have any issues with this fork, please feel free to report them on the issues page or bother us on Discord about it.
 
-This includes 2x mode, which can be used to support older Nscripter games at 2x resolution. This feature has been added as an extra argument to `;mode` (`e.g. `;mode960@2x`). Widescreen support is also included, and can be enabled with `;modew720` or `;modew1080`.
+This includes 2x mode, which can be used to support older Nscripter games at 2x resolution. This feature has been added as an extra argument to `;mode` (e.g. `;mode960@2x`). Widescreen support is also included, and can be enabled with `;modew720` or `;modew1080`.
 
 
 ## License
