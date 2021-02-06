@@ -121,5 +121,46 @@ Older ponscripter version will render all images at double their resolution. Thi
 In the latest releases, this is a config option passed to `mode` on the first line of your script (see below), e.g. `modew540@2x` will enable it.
 You'll usually never want to have this enabled for a modded game, unless there's historical reasons for it. Use `modew1080`. If you want to re-use some images from the base game, upscale them.
 
+## Effects and effect numbers
+When showing and hiding images, ponscripter supports a variety of visual effects. The few built-in ones are documented [here](/ponscripter-fork/api/#effect ':ignore'), and the remaining will vary per game. Ryukishi references effects by numbers instead of giving them sensible names. Unfortunately, this is something you'll have to get used to for showing/hiding custom images. You may look up how custom effects work and what they are by searching the script of your game for `effect`, and you'll most likely find the definitions quickly enough. Most of the custom effects use image-based masks, which should be relatively simple to understand.
+
+## The print statement
+Effect number 0 is special. It merely loads the images in memory, storing them for later usage. When you are ready to use them, call `print`, followed by an actual effect number, e.g. `print 5`. Some commands don't take effect numbers as arguments at all, and instead *require* you to use `print`.
+## Backgrounds
+
+Backgrounds are fairly trivial: `bg "filename",effect_number`, e.g. `bg "backgrounds\my.png",2`. If you use effect `0`, you will need to `print` your background.
+
+## Sprites
+Sprites are more complex. This is mainly because Ryukishi has defined custom functions that handle sprite loading and placement, and those functions will vary greatly per game. As a general rule, we'll want to avoid those custom definitions (unless we're just copying a line that already works) and instead rely on the built-in ponscripter functionality, which does the job just the same, but doesn't vary per-game. As a general rule, we will only care about four commands: `_ld` (note the underscore), `cl`, `lsp` and `csp`.
+The first two are the easiest to work with: they take a "side" (`l`eft, `c`enter or `r`ight), a filename (only for `_ld`) and an effect number, e.g.:
+
+```
+_ld l,"sprites\nat\1\nat_a11_zutuu1.png",80 ; Natsuhi has headache
+; ...
+cl l,14 ; Natsuhi dies
+```
+`cl` optionally takes "a" as a side, clearing all the sprites loaded with `_ld`. Just like before, using effect `0` will require `print`.
+
+`lsp` and `csp` are slightly more complicated. For one, they take a "sprite number" as an argument &mdash; this can be anything as long as there's no other `lsp` statements nearby that already take this number up. You make up a number for use with `lsp`, and then pass that same number to `csp` to get rid of the sprite (you **MUST DO THIS** -- do not leave these sprites hanging in memory!). These commands *must* also be followed by `print`, or they will have no effect. The syntaxes are:
+```
+lsp sprite_number,filename,x,y,opacity
+print effect_number
+; ...
+csp sprite_number
+print effect_number
+```
+The `opacity` argument is optional. 
+
+Example:
+```
+lsp bgsp,butterfly_3x,0,0
+print 2
+; ...
+csp bgsp
+print 3
+```
+
+## A note on "mld"
+`mld` is a Ryukishi hack that allows the engine to display 2 sprites per side of `_ld`, with slight offsets (`mld l` is not the same position as `_ld l`, but it's still *on the left*). `mld` has largely the same syntax as `_ld`, but is fairly complex internally and will, once again, vary per game. If you want to do something similar to what `mld` does, I suggest just seeing what it does to coordinates in your game and then using the same equations for `lsp`, unless you understand exactly how `mld` works in your specific game.
 
 # To be continued...
