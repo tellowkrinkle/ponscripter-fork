@@ -124,7 +124,7 @@ You'll usually never want to have this enabled for a modded game, unless there's
 ## Effects and effect numbers
 When showing and hiding images, ponscripter supports a variety of visual effects. The few built-in ones are documented [here](/ponscripter-fork/api/#effect ':ignore'), and the remaining will vary per game. Ryukishi references effects by numbers instead of giving them sensible names. Unfortunately, this is something you'll have to get used to for showing/hiding custom images. You may look up how custom effects work and what they are by searching the script of your game for `effect`, and you'll most likely find the definitions quickly enough. Most of the custom effects use image-based masks, which should be relatively simple to understand.
 
-## The print statement
+## The `print` statement
 Effect number 0 is special. It merely loads the images in memory, storing them for later usage. When you are ready to use them, call `print`, followed by an actual effect number, e.g. `print 5`. Some commands don't take effect numbers as arguments at all, and instead *require* you to use `print`.
 ## Backgrounds
 
@@ -133,7 +133,7 @@ Backgrounds are fairly trivial: `bg "filename",effect_number`, e.g. `bg "backgro
 ## Sprites
 Sprites are more complex. This is mainly because Ryukishi has defined custom functions that handle sprite loading and placement, and those functions will vary greatly per game. As a general rule, we'll want to avoid those custom definitions (unless we're just copying a line that already works) and instead rely on the built-in ponscripter functionality, which does the job just the same, but doesn't vary per-game. As a general rule, we will only care about four commands: `_ld` (note the underscore), `cl`, `lsp` and `csp`.
 
-### "_ld" and "cl"
+### `_ld` and `cl`
 The first two are the easiest to work with: they take a "side" (`l`eft, `c`enter or `r`ight), a filename (only for `_ld`) and an effect number, e.g.:
 
 ```
@@ -145,7 +145,7 @@ cl l,14 ; Natsuhi dies
 
 Just like before, using effect `0` will require `print`.
 
-### "lsp" and "csp"
+### `lsp` and `csp`
 
 `lsp` and `csp` are slightly more complicated. For one, they take a "sprite number" as an argument &mdash; this can be anything as long as there's no other `lsp` statements nearby that already take this number up. You make up a number for use with `lsp`, and then pass that same number to `csp` to get rid of the sprite (you **MUST DO THIS** &mdash; do not leave these sprites hanging in memory!). These commands *must* also be followed by `print`, or they will have no effect. The syntaxes are:
 ```
@@ -166,7 +166,7 @@ csp 0
 print 3
 ```
 
-### A note on "mld"
+### A note on `mld`
 `mld` is a Ryukishi hack that allows the engine to display 2 sprites per side of `_ld`, with slight offsets (`mld l` is not the same position as `_ld l`, but it's still *on the left*). `mld` has largely the same syntax as `_ld`, but is fairly complex internally and will, once again, vary per game. If you want to do something similar to what `mld` does, I suggest just seeing what it does to coordinates in your game and then using the same equations for `lsp`, unless you understand exactly how `mld` works in your specific game.
 
 # Sounds (BGM/SE/ME)
@@ -189,5 +189,43 @@ The numbers in the function name refer to the channel number. As you can see, th
 
 To stop a ME track, use `E_M1` through `E_M5`, or `E_MA` to stop all of them.
 Use `E_B` to stop the BGM.
+
+# Labels and subroutines
+A label is, simply speaking, a line of the script you can jump to.
+Most VN engines have these in some form or another. In ponscripter, a label is represented as a line that starts with an asterisk and is followed by an identifier:
+```
+*myLabel
+```
+You can transfer control to this label with either `goto *myLabel` or with `gosub *myLabel`.
+If you use `gosub`, then it's expected that the label will have a `return` statement somewhere below it, which will return control over to the line after the `gosub` when it is encountered. In other words, the following should print "ABC":
+```
+^A^@/
+gosub *myLabel
+^C^@/
+*myLabel
+^B^@/
+return
+```
+A label that is meant to be called with `gosub` is known as a subroutine. Note that subroutines do not return values or accept parameters, they are just a way to shift control back and forth. To accept parameters, you will need to use a User-Defined Command (also known as a function), which will be addressed later.
+
+## Utilising labels for debugging
+When working on a particular section of a game, save/load will sometimes not do the job, as they tend to break when the script changes. As such, you may want a quick way to jump to a particular section of the script. I suggest placing `goto *myLabel` somewhere shortly after the very start of the game, and then place `*myLabel` itself at the place you want to debug.
+
+## `*define`, `game` and `*start`
+Two labels that are always present in any ponscripter game are `*define` and `*start`.
+
+`*start` is straightforward. The game starts there. Yay.
+
+`*define` is *weird*. There are some commands which will only work while they are inside the `*define` label, while most others only work outside of it. `*define` is processed before script execution proper -- at "compile time", so to speak. It may help to think of everything inside `*define` as being similar to C preprocessor directives, such as `#define` (oh hey), `#include` and such others. From this point onwards, I will mention if a command has to be inside `*define`. If that isn't mentioned, you can assume it must be used *outside* of `*define`.
+
+The `*define` label ends with a single line containing the word `game`. No `goto`s or `gosub`s.
+
+As such, a complete (if not particularly entertaining) ponscripter game looks something like the following:
+```
+*define
+game
+*start
+^Hello world!^\
+```
 
 # To be continued...
