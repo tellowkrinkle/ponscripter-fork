@@ -279,7 +279,7 @@ Essentially, this uses an ever-incrementing (`inc` increases the specified varia
 You don't have to use this if you don't like this approach, but at least you now have an understanding of what's happening in Ryukishi's `*define` blocks with this.
 
 ## Functions
-A function, or a User-Defined Command, is declared with `defsub` followed by a label, e.g. `defsub myLabel`. Note that the asterisk is *not* included with the label name, like it is with `goto` or `gosub`. 
+A function, or a User-Defined Command, is declared with `defsub` followed by a label, e.g. `defsub myLabel`, inside a `*define` block. Note that the asterisk is *not* included with the label name, like it is with `goto` or `gosub`. 
 
 After such a definition is used, writing `myLabel` on its own is equivalent to writing `gosub *myLabel`, however, you will also be able to pass additional parameters to the function now, like `myLabel 1,2,3`.
 
