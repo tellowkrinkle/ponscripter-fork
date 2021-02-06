@@ -132,6 +132,8 @@ Backgrounds are fairly trivial: `bg "filename",effect_number`, e.g. `bg "backgro
 
 ## Sprites
 Sprites are more complex. This is mainly because Ryukishi has defined custom functions that handle sprite loading and placement, and those functions will vary greatly per game. As a general rule, we'll want to avoid those custom definitions (unless we're just copying a line that already works) and instead rely on the built-in ponscripter functionality, which does the job just the same, but doesn't vary per-game. As a general rule, we will only care about four commands: `_ld` (note the underscore), `cl`, `lsp` and `csp`.
+
+### "_ld" and "cl"
 The first two are the easiest to work with: they take a "side" (`l`eft, `c`enter or `r`ight), a filename (only for `_ld`) and an effect number, e.g.:
 
 ```
@@ -139,7 +141,11 @@ _ld l,"sprites\nat\1\nat_a11_zutuu1.png",80 ; Natsuhi has headache
 ; ...
 cl l,14 ; Natsuhi dies
 ```
-`cl` optionally takes "a" as a side, clearing all the sprites loaded with `_ld`. Just like before, using effect `0` will require `print`.
+`cl` optionally takes "a" as a side, clearing all the sprites loaded with `_ld`.
+
+Just like before, using effect `0` will require `print`.
+
+### "lsp" and "csp"
 
 `lsp` and `csp` are slightly more complicated. For one, they take a "sprite number" as an argument &mdash; this can be anything as long as there's no other `lsp` statements nearby that already take this number up. You make up a number for use with `lsp`, and then pass that same number to `csp` to get rid of the sprite (you **MUST DO THIS** -- do not leave these sprites hanging in memory!). These commands *must* also be followed by `print`, or they will have no effect. The syntaxes are:
 ```
@@ -149,7 +155,7 @@ print effect_number
 csp sprite_number
 print effect_number
 ```
-The `opacity` argument is optional. 
+The `opacity` argument is optional, and ranges from 0 to 255.
 
 Example:
 ```
@@ -160,7 +166,7 @@ csp bgsp
 print 3
 ```
 
-## A note on "mld"
+### A note on "mld"
 `mld` is a Ryukishi hack that allows the engine to display 2 sprites per side of `_ld`, with slight offsets (`mld l` is not the same position as `_ld l`, but it's still *on the left*). `mld` has largely the same syntax as `_ld`, but is fairly complex internally and will, once again, vary per game. If you want to do something similar to what `mld` does, I suggest just seeing what it does to coordinates in your game and then using the same equations for `lsp`, unless you understand exactly how `mld` works in your specific game.
 
 # To be continued...
