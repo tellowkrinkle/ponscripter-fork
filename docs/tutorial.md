@@ -107,7 +107,7 @@ ponscripter features three modes for image transparency: `leftup`, `alphablend` 
 - `alphablend` assumes that the image is doubled in width, and its right half is an inverted alpha-mask: pixels that are black on the mask are fully opaque, pixels that are white are fully transparent.
 - `copy` assumes that the image contains no transparency information at all, and is just to be drawn as-is.
 
-The transparency mode can be set per game (with `transmode`), but modifying that is not recommended -- it will, most likely, break things.
+The transparency mode can be set per game (with `transmode`), but modifying that is not recommended &mdash; it will, most likely, break things.
 
 The transparency mode can also be set per image. This is done by prefixing the file path with `:l;`, `:a;` or `:c;`, e.g. `":a;myfile.bmp"`.
 
@@ -147,7 +147,7 @@ Just like before, using effect `0` will require `print`.
 
 ### "lsp" and "csp"
 
-`lsp` and `csp` are slightly more complicated. For one, they take a "sprite number" as an argument &mdash; this can be anything as long as there's no other `lsp` statements nearby that already take this number up. You make up a number for use with `lsp`, and then pass that same number to `csp` to get rid of the sprite (you **MUST DO THIS** -- do not leave these sprites hanging in memory!). These commands *must* also be followed by `print`, or they will have no effect. The syntaxes are:
+`lsp` and `csp` are slightly more complicated. For one, they take a "sprite number" as an argument &mdash; this can be anything as long as there's no other `lsp` statements nearby that already take this number up. You make up a number for use with `lsp`, and then pass that same number to `csp` to get rid of the sprite (you **MUST DO THIS** &mdash; do not leave these sprites hanging in memory!). These commands *must* also be followed by `print`, or they will have no effect. The syntaxes are:
 ```
 lsp sprite_number,filename,x,y,opacity
 print effect_number
@@ -173,12 +173,12 @@ print 3
 Playing sounds in Ryukishi games is a little weird, but fortunately, it's not likely you'll *ever* have to add these while modding. Still, it's worth explaining just in case.
 
 The sounds are split into three types:
-- BGM -- this is music. It loops until it's stopped or replaced by another track.
-- SE -- these are sound effects. They play only ones.
-- ME -- these are ambient tracks such as rain, seagull noises, etc. These loop until they are stopped or replaced, just like music, but are played *on top* of the music track.
+- BGM &mdash; this is music. It loops until it's stopped or replaced by another track.
+- SE &mdash; these are sound effects. They play only ones.
+- ME &mdash; these are ambient tracks such as rain, seagull noises, etc. These loop until they are stopped or replaced, just like music, but are played *on top* of the music track.
 
 While all the BGM/SE/ME files are properly named in the folders, the script uses numeric values to refer to them.
-So, for starters, figure out what numeric value the file you want to play corresponds to -- just search the script for the filename and you'll find it.
+So, for starters, figure out what numeric value the file you want to play corresponds to &mdash; just search the script for the filename and you'll find it.
 Next, pass the number to one of the functions below:
 
 - `bgm1` or `bgm1v` for BGM,
