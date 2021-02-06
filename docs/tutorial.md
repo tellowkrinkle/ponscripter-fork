@@ -67,4 +67,49 @@ langen:dwave_eng 0, "voice\27\50700001.ogg":^"You idiot!!^@:dwave_eng 0, "voice\
 
 You should now be able to read this wihtout significant issues. Congrats, you know how to edit text!
 
+# On image transparency
+tl;dr: Put `force-png-alpha` into `pns.cfg` in the game root, creating the file if it does not exist.
+
+ponscripter features three modes for image transparency: `leftup`, `alphablend` and `copy`.
+
+- `leftup` assumes that the top-left pixel is a "sacrificed" colour: all pixels with the colours identical to the top-left one become transparent.
+- `alphablend` assumes that the image is doubled in width, and its right half is an inverted alpha-mask: pixels that are black on the mask are fully opaque, pixels that are white are fully transparent.
+- `copy` assumes that the image contains no transparency information at all, and is just to be drawn as-is.
+
+The transparency mode can be set per game (with `transmode`), but modifying that is not recommended -- it will, most likely, break things.
+
+The transparency mode can also be set per image. This is done by prefixing the file path with `:l;`, `:a;` or `:c;`, e.g. `":a;myfile.bmp"`.
+
+This implementation pre-dates support for the PNG format, and as such does not directly take into account the actual alpha channel of a PNG image.
+However, if the top-left pixel of a transparent PNG is transparent, PNG transparency will be treated as expected. This is the case most of the time.
+If you have transparent PNGs that have a non-transparent top-left pixel, however, transparency will break.
+To fix it, add the aforementioned config parameter.
+
+# On image sizes
+Older ponscripter version will render all images at double their resolution. This can be fixed per-image by adding `:b;` before the path (if a transparency flag is used, it becomes something similar to `:ba;` instead).
+In the latest releases, this is a config option passed to `mode` on the first line of your script (see below), e.g. `modew540@2x` will enable it.
+You'll usually never want to have this enabled for a modded game, unless there's historical reasons for it. Use `modew1080`. If you want to re-use some images from the base game, upscale them.
+
+# On the first lines of the script
+The first lines of the Umineko script contain the following expressions:
+```
+;value2500,modew540@2x,localsave=mysav
+;gameid Umineko4hdz
+```
+All of the three bits of the first line are optional, but nevertheless important. Let's discuss them in order:
+
+- `value2500` is the global variable border. This is too terrifying of a concept to explain just yet, so for your own safety, it'll be tackled later.
+- `mode` sets the resolution. A wide variety of resolutions are supported, but only a few are actually anything a sane person would use:
+  - `modew720`, for 1280x720
+  - `modew1080`, for 1920x1080
+  - You may also encounter `modew540@2x`, for the main Umineko games (this is also 1080p, but with the weird auto-upscale enabled). It's only around for historical reasons.
+-  `localsave=mysav` forces the game to save in the `mysav` folder in the game directory. This is recommended for Steam releases, as ponscripter handles Steam saves in a very weird way (see below).
+
+The second line is just `;gameid` followed by an identifier.
+
+- This is ignored if `localsave` is set, in which case the folder specified in `localsave` is used.
+- This is also ignored when running on the Steam build of the engine *from Steam*. If `localsave` is not set, but a Steam build is used and launched via Steam, the `saves` folder will be used for saves.
+- If neither of those apply, this line will make game saves go to `%APPDATA%\specified_game_id`.
+
+
 # To be continued...
