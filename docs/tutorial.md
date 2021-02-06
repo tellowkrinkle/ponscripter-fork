@@ -4,11 +4,11 @@ ponscripter is the engine that 07th-Expansion has used to release all its games 
 
 The [current version of ponscripter](https://github.com/07th-mod/ponscripter-fork) is maintained by the 07th-Mod team.
 
-A [full API documentation](/api/ ':ignore') is available as well, but it is somewhat difficult to parse and contains a lot of knowledge that you likely won't ever need when working on a mod.
+A [full API documentation](/ponscripter-fork/api/ ':ignore') is available as well, but it is somewhat difficult to parse and contains a lot of knowledge that you likely won't ever need when working on a mod.
 
 # On file encryption
 
-All Ryukishi games use a single script file called `0.utf`. The 07th-Mod version of the engine modifies this filename to `0.u` instead, to prevent Steam upgrades from breaking scripts. If you cannot find a `0.utf` or a `0.u` in the game folder, you will likely instead see a `pscript.dat`. This is a trivially obfuscated script, and can be decoded with `nscdec` (rename `result.txt` to `0.u`). You may also find one or more `arc*.nsa` files. These are archived resources (images etc), and can be extracted with `nsadec`. **There is no need to ever re-obfuscate the script or re-pack the NSA archives**, the game will work fine in the decompiled state and always prefer plain files over encrypted/archived ones. `nscdec` and `nsadec` can be downloaded [here](/onscrtools.zip ':ignore').
+All Ryukishi games use a single script file called `0.utf`. The 07th-Mod version of the engine modifies this filename to `0.u` instead, to prevent Steam upgrades from breaking scripts. If you cannot find a `0.utf` or a `0.u` in the game folder, you will likely instead see a `pscript.dat`. This is a trivially obfuscated script, and can be decoded with `nscdec` (rename `result.txt` to `0.u`). You may also find one or more `arc*.nsa` files. These are archived resources (images etc), and can be extracted with `nsadec`. **There is no need to ever re-obfuscate the script or re-pack the NSA archives**, the game will work fine in the decompiled state and always prefer plain files over encrypted/archived ones. `nscdec` and `nsadec` can be downloaded [here](/ponscripter-fork/onscrtools.zip ':ignore').
 
 # On comments
 ponscripter's comments start with a `;` and last until the end of the line. There are no block comments. Note that three actual commands start with a `;` too: `;value`, `;mode` and `;gameid`. Those are *not* comments, even though in any sane person's mind they would be.
