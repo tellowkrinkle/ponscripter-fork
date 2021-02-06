@@ -124,7 +124,7 @@ You'll usually never want to have this enabled for a modded game, unless there's
 ## Effects and effect numbers
 When showing and hiding images, ponscripter supports a variety of visual effects. The few built-in ones are documented [here](/ponscripter-fork/api/#effect ':ignore'), and the remaining will vary per game. Ryukishi references effects by numbers instead of giving them sensible names. Unfortunately, this is something you'll have to get used to for showing/hiding custom images. You may look up how custom effects work and what they are by searching the script of your game for `effect`, and you'll most likely find the definitions quickly enough. Most of the custom effects use image-based masks, which should be relatively simple to understand.
 
-## The `print` statement
+### The `print` statement
 Effect number 0 is special. It merely loads the images in memory, storing them for later usage. When you are ready to use them, call `print`, followed by an actual effect number, e.g. `print 5`. Some commands don't take effect numbers as arguments at all, and instead *require* you to use `print`.
 ## Backgrounds
 
@@ -134,7 +134,7 @@ Backgrounds are fairly trivial: `bg "filename",effect_number`, e.g. `bg "backgro
 Sprites are more complex. This is mainly because Ryukishi has defined custom functions that handle sprite loading and placement, and those functions will vary greatly per game. As a general rule, we'll want to avoid those custom definitions (unless we're just copying a line that already works) and instead rely on the built-in ponscripter functionality, which does the job just the same, but doesn't vary per-game. As a general rule, we will only care about four commands: `_ld` (note the underscore), `cl`, `lsp` and `csp`.
 
 ### `_ld` and `cl`
-The first two are the easiest to work with: they take a "side" (`l`eft, `c`enter or `r`ight), a filename (only for `_ld`) and an effect number, e.g.:
+These first two are the easiest to work with: they take a "side" (`l`eft, `c`enter or `r`ight), a filename (only for `_ld`) and an effect number, e.g.:
 
 ```
 _ld l,"sprites\nat\1\nat_a11_zutuu1.png",80 ; Natsuhi has headache
@@ -227,5 +227,65 @@ game
 *start
 ^Hello world!^\
 ```
+# Definitions: constants, variables, functions
+There are a variety of things that you can declare within the `*define` block. This includes string and numeric constants, variables (...sort of), and functions.
+These are all used heavily throughout Ryukishi's games, and understanding how they work can help read the existing code a lot.
 
+## Constants
+Constants are declared with `stralias` (for strings) or `numalias` (for numeric constants) inside the `*define` block. The syntax for the two is similar:
+```
+stralias string_constant,"blah blah"
+numalias num_constant,542
+```
+String constants are really useful for shortening often-used filenames. Numeric constants can be used to give names to effects and the like, but they have a few other uses which will be explained shortly.
+
+## Variables
+ponscripter variables are implemented in a **completely, utterly deranged** way. You have been warned.
+
+ponscripter variables are, by default, *numbered*, not *named*. You have numeric variables, which are called `%0`, `%1`, `%2`, etc, and string variables, which go `$0`, `$1`, `$2`, etc.
+Note that `%0` and `$0` are two completely different variables and you may store entirely separate values in both. 
+
+Variables are assigned values with the `mov` command, for instance, `mov %0,1` or `mov $0,"hello"`. 
+
+You can use indirect references: `mov %0,1` followed by `mov %%0,5` is the same as `mov %1,5`. Please do not do this. This is only for understanding it if you ever encounter it.
+
+You may use a numeric constant to give variables human-readable names. In other words, by putting `numalias x,0` in the `*define` block, you also automatically get the two variables, `%x` and `$x`, declared for your future use. Of course, if you want to use the same number as both a meaningful constant and a meaningful variable name, you might want to do two `numalias` calls with the same number.
+
+You cannot declare named variables at runtime -- all the names you intend to use have to be listed in the `*define` block.
+
+Furthermore, the `;value2500` in the header defines the "border" between local and global variables.
+
+Variables with numbers below this value are "local". That's not in the sense that they are local to a function/label that uses them &mdash; that'd make too much sense. Instead, what this means is that these variables will have their values saved only to individual save files, and they will be reset if the game is restarted.
+
+Variables with numers equal to or above this value are "global". In ponscripter terms, this means that they will be saved to a "global save", and will maintain their value even across game restarts, unless you manually reset them.
+
+### Ryukishi-style variable name definition
+Ryukishi has come up with a clever way to define a ton of named variables without having to deal with manually setting numbers for each of them. It works as follows:
+```
+; Food variables:
+mov %0,1
+numalias potato,%0 : inc %0
+numalias pineapple,%0 : inc %0
+numalias orange,%0 : inc %0
+; Drink variables:
+mov %0,100
+numalias coke,%0 : inc %0
+numalias juice,%0 : inc %0
+numalias beer,%0 : inc %0
+; ... etc
+```
+Essentially, this uses an ever-incrementing (`inc` increases the specified variable by 1) numerical variable to define the numaliases themselves -- thus removing the need to manually type numbers, and allowing to group related variables together into numeric ranges, so that adding new ones in the correct place of the code is easy (well, as easy as this insane system allows...).
+
+You don't have to use this if you don't like this approach, but at least you now have an understanding of what's happening in Ryukishi's `*define` blocks with this.
+
+## Functions
+A function, or a User-Defined Command, is declared with `defsub` followed by a label, e.g. `defsub myLabel`. Note that the asterisk is *not* included with the label name, like it is with `goto` or `gosub`. 
+
+After such a definition is used, writing `myLabel` on its own is equivalent to writing `gosub *myLabel`, however, you will also be able to pass additional parameters to the function now, like `myLabel 1,2,3`.
+
+If a subroutine is called as a function with parameters, you may use `getparam` as the very first command inside the subroutine to retreive them:
+```
+getparam %x,$y,%z ; three params: number, string, number
+```
+Function names may override built-in ponscripter commands. In this case, the original command can be accessed by prefixing it with an underscore, like `_ld`.
 # To be continued...
