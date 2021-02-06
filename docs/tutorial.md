@@ -169,4 +169,25 @@ print 3
 ### A note on "mld"
 `mld` is a Ryukishi hack that allows the engine to display 2 sprites per side of `_ld`, with slight offsets (`mld l` is not the same position as `_ld l`, but it's still *on the left*). `mld` has largely the same syntax as `_ld`, but is fairly complex internally and will, once again, vary per game. If you want to do something similar to what `mld` does, I suggest just seeing what it does to coordinates in your game and then using the same equations for `lsp`, unless you understand exactly how `mld` works in your specific game.
 
+# Sounds (BGM/SE/ME)
+Playing sounds in Ryukishi games is a little weird, but fortunately, it's not likely you'll *ever* have to add these while modding. Still, it's worth explaining just in case.
+
+The sounds are split into three types:
+- BGM -- this is music. It loops until it's stopped or replaced by another track.
+- SE -- these are sound effects. They play only ones.
+- ME -- these are ambient tracks such as rain, seagull noises, etc. These loop until they are stopped or replaced, just like music, but are played *on top* of the music track.
+
+While all the BGM/SE/ME files are properly named in the folders, the script uses numeric values to refer to them.
+So, for starters, figure out what numeric value the file you want to play corresponds to -- just search the script for the filename and you'll find it.
+Next, pass the number to one of the functions below:
+
+- `bgm1` or `bgm1v` for BGM,
+- `se1`, `se1v`, `se2`, `se2v`, `se3`, `se3v` for SE,
+- `me1`, `me1v` through `me5`, `me5v` for ME.
+
+The numbers in the function name refer to the channel number. As you can see, the amount of channels is strictly limited, but, frankly, you should almost never need more than one per type in the first place. The `v` versions of the function allow you to also pass a volume (between 0 and 100) as a second parameter.
+
+To stop a ME track, use `E_M1` through `E_M5`, or `E_MA` to stop all of them.
+Use `E_B` to stop the BGM.
+
 # To be continued...
