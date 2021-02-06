@@ -11,7 +11,7 @@ If you are looking to modify a different ponscripter game, information here may 
 
 ponscripter is the engine that 07th-Expansion has used to release all its games in the West so far, with the sole exception of Higurashi &mdash; that used a custom Unity-based engine. Some of the games that weren't officially released used an older iteration of the engine &mdash; ONScripter &mdash; but we don't expect that those older games will ever receive console releases, so they are largely irrelevant. We expect that future 07th-Expansion games will keep using ponscripter into the foreseeable future.
 
-The [current version of ponscripter](https://github.com/07th-mod/ponscripter-fork) is maintained by the 07th-Mod team.
+The [current version of ponscripter](https://github.com/07th-mod/ponscripter-fork) is maintained by the [07th-Mod](https://07th-mod.com) team.
 
 A [full API documentation](/ponscripter-fork/api/ ':ignore') is available as well, but it is somewhat difficult to parse and contains a lot of knowledge that you likely won't ever need when working on a mod.
 
