@@ -17,10 +17,7 @@ Other engines focussed on Western-language games include:
 
 ### Documentation
 
-Ponscripter documentation is provided in the form of a set of manual
-pages. Start with ponscripter(7).
-
-You may also browse the documentation [online](https://www.drojf.com/nscripter/NScripter_API_Reference.html).
+You may browse the documentation [online](https://07th-mod.github.io/ponscripter-fork).
 
 
 ## Compatibility
@@ -45,7 +42,7 @@ Please report all bugs with this project on the [issues page](../../issues). Inc
 
 ## Acknowledgements
 
-The original Ponscripter engine was maintained and, in great part, created by [Mion](http://unclemion.com).
+The original Ponscripter engine was maintained and, in great part, created by Mion.
 
 Ponscripter is built primarily on Ogapee's work, without which there
 would be nothing here.
