@@ -174,7 +174,7 @@ Playing sounds in Ryukishi games is a little weird, but fortunately, it's not li
 
 The sounds are split into three types:
 - BGM &mdash; this is music. It loops until it's stopped or replaced by another track.
-- SE &mdash; these are sound effects. They play only ones.
+- SE &mdash; these are sound effects. They play only once.
 - ME &mdash; these are ambient tracks such as rain, seagull noises, etc. These loop until they are stopped or replaced, just like music, but are played *on top* of the music track.
 
 While all the BGM/SE/ME files are properly named in the folders, the script uses numeric values to refer to them.
