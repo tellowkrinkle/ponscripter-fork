@@ -25,7 +25,7 @@ A lot of work will likely involve editing text. ponscripter's text display is *s
 ^  ...So, you still haven't overcome your love of alcohol?"^ ; English text example
 ```
 
-# On control characters
+## On control characters
 
 Text lines will tend to be interspersed with a few control characters that alter how text display works. There's a few of those that are relevant here.
 
@@ -49,14 +49,14 @@ The explanation about newlines might not make much sense without seeing it in ac
 ^C^@/ ; This will have the same effect as the first line
 ```
 
-# On language support
+## On language support
 ponscripter is built as an engine with bilingual games in mind: in other words, the same script will traditionally house text for both Japanese and English (adding more languages is, unfortunately, impossible). In games that use this feature, Japanese lines should be prefixed with `langjp` and English lines should be prefixed with `langen`. The text in these lines will only be displayed when the user has the appropriate language selected, although do note that any commands unrelated to text display will *not* take `langen` and `langjp` into account, and trigger for both languages.
 
-# On voices
+## On voices
 Voices are generally played with the `dwave` command. There is a multi-lingual version of that command that we created for our mod: `dwave_eng` will only play on `langen` lines, and `dwave_jp` will only play on `langjp` lines. If maintaining Japanese support is one of your goals, you *really* should use `dwave_jp` and `dwave_eng`, otherwise voices will turn into a mess.
 The syntax of `dwave` is simple enough: `dwave channel_number,"voice_file"`. The channel number is usually set to `0`, it's only ever useful if you want to play multiple voices *at once*: in which case, use a syntax like `dwave 0,"voice_file_1":dwave 1,"voice_file_2":dwave 2,"voice_file_3"`
 
-# Putting it all together... (text display)
+## Putting it all together... (text display)
 
 Now that we've covered all of *that*, we can finally read some of Umineko's script! Let's give it a go!
 
@@ -67,7 +67,29 @@ langen:dwave_eng 0, "voice\27\50700001.ogg":^"You idiot!!^@:dwave_eng 0, "voice\
 
 You should now be able to read this wihtout significant issues. Congrats, you know how to edit text!
 
-# On image transparency
+# On the first lines of the script
+The first lines of the Umineko script contain the following expressions:
+```
+;value2500,modew540@2x,localsave=mysav
+;gameid Umineko4hdz
+```
+All of the three bits of the first line are optional, but nevertheless important. Let's discuss them in order:
+
+- `value2500` is the global variable border. This is too terrifying of a concept to explain just yet, so for your own safety, it'll be tackled later.
+- `mode` sets the resolution. A wide variety of resolutions are supported, but only a few are actually anything a sane person would use:
+  - `modew720`, for 1280x720
+  - `modew1080`, for 1920x1080
+  - You may also encounter `modew540@2x`, for the main Umineko games (this is also 1080p, but with the weird auto-upscale enabled, see below). It's only around for historical reasons.
+-  `localsave=mysav` forces the game to save in the `mysav` folder in the game directory. This is recommended for Steam releases, as ponscripter handles Steam saves in a very weird way (see below).
+
+The second line is just `;gameid` followed by an identifier.
+
+- This is ignored if `localsave` is set, in which case the folder specified in `localsave` is used.
+- This is also ignored when running on the Steam build of the engine *from Steam*. If `localsave` is not set, but a Steam build is used and launched via Steam, the `saves` folder will be used for saves.
+- If neither of those apply, this line will make game saves go to `%APPDATA%\specified_game_id`.
+
+# On images
+## On image transparency
 tl;dr: Put `force-png-alpha` into `pns.cfg` in the game root, creating the file if it does not exist.
 
 ponscripter features three modes for image transparency: `leftup`, `alphablend` and `copy`.
@@ -85,31 +107,10 @@ However, if the top-left pixel of a transparent PNG is transparent, PNG transpar
 If you have transparent PNGs that have a non-transparent top-left pixel, however, transparency will break.
 To fix it, add the aforementioned config parameter.
 
-# On image sizes
+## On image sizes
 Older ponscripter version will render all images at double their resolution. This can be fixed per-image by adding `:b;` before the path (if a transparency flag is used, it becomes something similar to `:ba;` instead).
 In the latest releases, this is a config option passed to `mode` on the first line of your script (see below), e.g. `modew540@2x` will enable it.
 You'll usually never want to have this enabled for a modded game, unless there's historical reasons for it. Use `modew1080`. If you want to re-use some images from the base game, upscale them.
-
-# On the first lines of the script
-The first lines of the Umineko script contain the following expressions:
-```
-;value2500,modew540@2x,localsave=mysav
-;gameid Umineko4hdz
-```
-All of the three bits of the first line are optional, but nevertheless important. Let's discuss them in order:
-
-- `value2500` is the global variable border. This is too terrifying of a concept to explain just yet, so for your own safety, it'll be tackled later.
-- `mode` sets the resolution. A wide variety of resolutions are supported, but only a few are actually anything a sane person would use:
-  - `modew720`, for 1280x720
-  - `modew1080`, for 1920x1080
-  - You may also encounter `modew540@2x`, for the main Umineko games (this is also 1080p, but with the weird auto-upscale enabled). It's only around for historical reasons.
--  `localsave=mysav` forces the game to save in the `mysav` folder in the game directory. This is recommended for Steam releases, as ponscripter handles Steam saves in a very weird way (see below).
-
-The second line is just `;gameid` followed by an identifier.
-
-- This is ignored if `localsave` is set, in which case the folder specified in `localsave` is used.
-- This is also ignored when running on the Steam build of the engine *from Steam*. If `localsave` is not set, but a Steam build is used and launched via Steam, the `saves` folder will be used for saves.
-- If neither of those apply, this line will make game saves go to `%APPDATA%\specified_game_id`.
 
 
 # To be continued...
