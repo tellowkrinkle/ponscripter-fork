@@ -19,6 +19,8 @@ A [full API documentation](/ponscripter-fork/api/ ':ignore') is available as wel
 
 All Ryukishi games use a single script file called `0.utf`. The 07th-Mod version of the engine modifies this filename to `0.u` instead, to prevent Steam upgrades from breaking scripts. If you cannot find a `0.utf` or a `0.u` in the game folder, you will likely instead see a `pscript.dat`. This is a trivially obfuscated script, and can be decoded with `nscdec` (rename `result.txt` to `0.u`). You may also find one or more `arc*.nsa` files. These are archived resources (images etc), and can be extracted with `nsadec`. **There is no need to ever re-obfuscate the script or re-pack the NSA archives**, the game will work fine in the decompiled state and always prefer plain files over encrypted/archived ones. `nscdec` and `nsadec` can be downloaded [here](/ponscripter-fork/onscrtools.zip ':ignore').
 
+## Debug mode
+While developing, you'll often want to start ponscripter with the `--debug` flag. This is because it normally just completely ignores a lot of things that would be considered errors by other engines, making it nigh-impossible to figure out why something doesn't work, or works in a weird way. Starting the engine with `--debug` will enable logging to files in `%APPDATA%\ponscripter`, which you can then read to figure out what went wrong if something did.
 ## Comments
 ponscripter's comments start with a `;` and last until the end of the line. There are no block comments. Note that three actual commands start with a `;` too: `;value`, `;mode` and `;gameid`. Those are *not* comments, even though in any sane person's mind they would be.
 
