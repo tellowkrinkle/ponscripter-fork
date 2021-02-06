@@ -33,7 +33,7 @@ Text lines will tend to be interspersed with a few control characters that alter
 - `\` will insert a "pagewait". This is the same as above, except the screen is cleared of text after the click as well.
 - `@/` is the same as `@`, except a paragraph break is never automatically inserted.
 - `~` is for text tags such as bold, italic, etc. The syntax you'll see most usually is `~ib~some text~ib~`, which renders as ***some text***.
-- `#` is for colours. These are just your usual HTML colour codes. `^#ff0000You are incompetent!#ffffff` will render as `You are incompetent!` in red, switching back to white for the rest of the text. Note that colour *names* are not supported: `#red` will not do anything.
+- `#` is for colours. These are just your usual HTML colour codes. `^#ff0000You are incompetent!#ffffff^` will render as `You are incompetent!` in red, switching back to white for the rest of the text. Note that colour *names* are not supported: `#red` will not do anything.
 
 Be very, very careful with the `~` character when translating, especially when porting translations over from ONScripter (as it didn't have `~` as a special character). It might be tempting to use it to express playfulness or something similar to that, but it will also crash the engine. If you want to actually render a `~` in your text, double it, i.e. write `~~`. These mistakes tend to be hard to catch, as the line will look just fine at a glance, so I suggest just avoiding this cursed snake altogether.
 
