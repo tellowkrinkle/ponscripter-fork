@@ -159,7 +159,7 @@ The `opacity` argument is optional, and ranges from 0 to 255.
 
 Example:
 ```
-lsp 0,butterfly_3x,0,0
+lsp 0,"bg\butterfly_3x.png",0,0
 print 2
 ; ...
 csp 0
