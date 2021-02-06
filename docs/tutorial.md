@@ -1,6 +1,12 @@
-# The basics
+# Purpose of this document
 
-This document is meant as a short crash-course into the `ponscripter` engine and cover the topics you are likely to deal with when working on mods.
+This tutorial is here to teach you, specifically, to mod an 07th-Expansion game.
+
+If you are looking to create a new game with ponscripter, this will not help you. Nothing will. The [API docs](/ponscripter-fork/api/ ':ignore') will only make things worse. Just stop. Please.
+If you are looking to modify a different ponscripter game, information here may be somewhat inaccurate, as it's written with Ryukishi's programming oddities in mind.
+
+
+# The basics
 
 ponscripter is the engine that 07th-Expansion has used to release all its games in the West so far, with the sole exception of Higurashi &mdash; that used a custom Unity-based engine. Some of the games that weren't officially released used an older iteration of the engine &mdash; ONScripter &mdash; but we don't expect that those older games will ever receive console releases, so they are largely irrelevant. We expect that future 07th-Expansion games will keep using ponscripter into the foreseeable future.
 
