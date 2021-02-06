@@ -18,7 +18,7 @@ Commands in ponscripter are separated with a newline, or with a `:` (that's a *c
 
 # On text display
 
-A lot of work will likely involve editing text. ponscripter's text display is *slightly* insane. Any Japanese text will just be displayed as-is in most contexts, so a Japanese text line will mostly just consist of the text itself and of control characters (see below). For English, on the other hand, you need to use the "text mode". The text mode is entered whenever a `^` character is encountered, and exited upon encountering another `^`. In other words, English text looks like a weird quoted string:
+A lot of work will likely involve editing text. ponscripter's text display is *slightly* insane. Any Japanese text will just be displayed as-is in most contexts, so a Japanese text line will mostly just consist of the text itself and of control characters (see below). For English, on the other hand, you need to use the "text mode". The text mode is entered whenever a `^` character is encountered, and exited upon encountering a clickwait/pagewait. A closing `^` is optional, but highly recommended as it makes text significantly easier to parse. In other words, English text usually looks like a weird quoted string:
 
 ```
 …お酒を嗜まれましたな？ ; Japanese text example
@@ -33,8 +33,11 @@ Text lines will tend to be interspersed with a few control characters that alter
 - `\` will insert a "pagewait". This is the same as above, except the screen is cleared of text after the click as well.
 - `@/` is the same as `@`, except a paragraph break is never automatically inserted.
 - `~` is for text tags such as bold, italic, etc. The syntax you'll see most usually is `~ib~some text~ib~`, which renders as ***some text***.
+- `#` is for colours. These are just your usual HTML colour codes. `^#ff0000You are incompetent!#ffffff` will render as `You are incompetent!` in red, switching back to white for the rest of the text. Note that colour *names* are not supported: `#red` will not do anything.
 
-This explanation about newlines might not make much sense without seeing it in action. So, let's give a few examples:
+Be very, very careful with the `~` character when translating, especially when porting translations over from ONScripter (as it didn't have `~` as a special character). It might be tempting to use it to express playfulness or something similar to that, but it will also crash the engine. If you want to actually render a `~` in your text, double it, i.e. write `~~`. These mistakes tend to be hard to catch, as the line will look just fine at a glance, so I suggest just avoiding this cursed snake altogether.
+
+The explanation about newlines might not make much sense without seeing it in action. So, let's give a few examples:
 
 ```
 ^A^@^B^@^C^ ; This will result in "ABC" after all clickwaits are triggered
