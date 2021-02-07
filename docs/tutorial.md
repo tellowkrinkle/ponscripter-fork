@@ -6,6 +6,11 @@ If you are looking to create a new game with ponscripter, this will not help you
 
 If you are looking to modify a different ponscripter game, information here may be somewhat inaccurate, as it's written with Ryukishi's programming oddities in mind.
 
+# Useful Tools
+
+Due to the size of the game scripts, you will need a text editor which can handle large files. Visual Studio Code works quite well, and works with the syntax highlighter below.
+
+If you use Visual Studio Code, we have created a mostly working syntax highlighter for ponscripter - [instructions on installing here](https://github.com/07th-mod/script-syntax-highlighters).
 
 # The basics
 
@@ -17,12 +22,29 @@ A [full API documentation](/ponscripter-fork/api/ ':ignore') is available as wel
 
 ## File encryption
 
-All Ryukishi games use a single script file called `0.utf`. The 07th-Mod version of the engine modifies this filename to `0.u` instead, to prevent Steam upgrades from breaking scripts. If you cannot find a `0.utf` or a `0.u` in the game folder, you will likely instead see a `pscript.dat`. This is a trivially obfuscated script, and can be decoded with `nscdec` (rename `result.txt` to `0.u`). You may also find one or more `arc*.nsa` files. These are archived resources (images etc), and can be extracted with `nsadec`. **There is no need to ever re-obfuscate the script or re-pack the NSA archives**, the game will work fine in the decompiled state and always prefer plain files over encrypted/archived ones. `nscdec` and `nsadec` can be downloaded [here](/ponscripter-fork/onscrtools.zip ':ignore').
+### Script encryption
+
+All Ryukishi games use a single script file called `0.utf` (a plaintext file). The 07th-Mod version of the engine modifies this filename to `0.u` instead, to prevent Steam upgrades from breaking scripts. If you cannot find a `0.utf` or a `0.u` in the game folder, you will likely instead see a `pscript.dat`. This is a trivially obfuscated script, and can be decoded with `nscdec` (rename `result.txt` to `0.u`).
+
+**There is no need to ever re-obfuscate the script**, as the game will work fine with the plaintext script, and always prefer the plaintext script over the encrypted one.
+
+### Resource encryption
+
+Even though ponscripter can load files directly from disk, games commonly use encrypted `arc*.nsa` files. These files contain archived resources (images etc), and can be extracted with `nsadec`.
+
+**There is no need to ever re-pack the NSA archives**, as the game will work fine loading files from disk, and will always prefer the files on disk to the files in the `arc*.nsa` archive.
+
+### Decryption Tools Downloads
+
+`nscdec` and `nsadec` can be downloaded [here](/ponscripter-fork/onscrtools.zip ':ignore').
 
 ## Debug mode
-While developing, you'll often want to start ponscripter with the `--debug` flag. This is because it normally just completely ignores a lot of things that would be considered errors by other engines, making it nigh-impossible to figure out why something doesn't work, or works in a weird way. Starting the engine with `--debug` will enable logging to files in `%APPDATA%\ponscripter`, which you can then read to figure out what went wrong if something did.
+
+While developing, you'll often want to start ponscripter with the `--debug` flag. This is because it normally just completely ignores a lot of things that would be considered errors by other engines, making it nigh-impossible to figure out why something doesn't work, or works in a weird way. On Windows, starting the engine with `--debug` will enable logging to files in `%APPDATA%\ponscripter`, which you can then read to figure out what went wrong if something did.
+
 ## Comments
-ponscripter's comments start with a `;` and last until the end of the line. There are no block comments. Note that three actual commands start with a `;` too: `;value`, `;mode` and `;gameid`. Those are *not* comments, even though in any sane person's mind they would be.
+
+ponscripter's comments start with a `;` and last until the end of the line. There are no block comments. Note that three special commands start with a `;` too: `;value`, `;mode` and `;gameid`, and are only usable at the very start of a script. Those are *not* comments, even though in any sane person's mind they would be.
 
 ## Command separation
 Commands in ponscripter are separated with a newline, or with a `:` (that's a *colon*, not a semicolon &mdash; those are comments).
@@ -45,6 +67,7 @@ Text lines will tend to be interspersed with a few control characters that alter
 - `@/` is the same as `@`, except a paragraph break is never automatically inserted.
 - `~` is for text tags such as bold, italic, etc. The syntax you'll see most usually is `~ib~some text~ib~`, which renders as ***some text***.
 - `#` is for colours. These are just your usual HTML colour codes. `^#ff0000You are incompetent!#ffffff^` will render as `You are incompetent!` in red, switching back to white for the rest of the text. Note that colour *names* are not supported: `#red` will not do anything.
+- If a line ends with no clickwait at all, or just `/` (which prevents a paragraph break), then the game will just continue to whatever commands are on the next line without stopping. This is usually used to play a sound or show an effect mid-sentence.
 
 Be very, very careful with the `~` character when translating, especially when porting translations over from ONScripter (as it didn't have `~` as a special character). It might be tempting to use it to express playfulness or something similar to that, but it will also crash the engine. If you want to actually render a `~` in your text, double it, i.e. write `~~`. These mistakes tend to be hard to catch, as the line will look just fine at a glance, so I suggest just avoiding this cursed snake altogether.
 
@@ -58,6 +81,19 @@ The explanation about newlines might not make much sense without seeing it in ac
 ^A^@/
 ^B^@/
 ^C^@/ ; This will have the same effect as the first line
+```
+
+The below example does not have a clickwait on the first line (just a `/` to suppress a paragraph break). It does the following:
+
+- Show the text "Stop!" on the screen, without a newline
+- Immediately shake the screen
+- Show the text "...you didn't stop..." on the screen
+- Wait for the user to click to advance to the next page
+
+```
+^Stop!^/
+quakey 4,800
+^...you didn't stop...^\
 ```
 
 ## Language support
@@ -119,7 +155,7 @@ If you have transparent PNGs that have a non-transparent top-left pixel, however
 To fix it, add the aforementioned config parameter.
 
 ## Image sizes
-Older ponscripter version will render all images at double their resolution. This can be fixed per-image by adding `:b;` before the path (if a transparency flag is used, it becomes something similar to `:ba;` instead).
+Older ponscripter versions will render all images at double their resolution. This can be fixed per-image by adding `:b;` before the path (if a transparency flag is used, it becomes something similar to `:ba;` instead).
 In the latest releases, this is a config option passed to `mode` on the first line of your script (see below), e.g. `modew540@2x` will enable it.
 You'll usually never want to have this enabled for a modded game, unless there's historical reasons for it. Use `modew1080`. If you want to re-use some images from the base game, upscale them.
 
@@ -247,6 +283,8 @@ ponscripter variables are implemented in a **completely, utterly deranged** way.
 ponscripter variables are, by default, *numbered*, not *named*. You have numeric variables, which are called `%0`, `%1`, `%2`, etc, and string variables, which go `$0`, `$1`, `$2`, etc.
 Note that `%0` and `$0` are two completely different variables and you may store entirely separate values in both. 
 
+You may want to imagine the game having two huge global arrays (one for numbers, one for strings), and you are directly indexing each one using `%` for the numeric array, and `$` for the string array.
+
 Variables are assigned values with the `mov` command, for instance, `mov %0,1` or `mov $0,"hello"`. 
 
 You can use indirect references: `mov %0,1` followed by `mov %%0,5` is the same as `mov %1,5`. Please do not do this. This is only for understanding it if you ever encounter it.
@@ -285,7 +323,7 @@ A function, or a User-Defined Command, is declared with `defsub` followed by a l
 
 After such a definition is used, writing `myLabel` on its own is equivalent to writing `gosub *myLabel`, however, you will also be able to pass additional parameters to the function now, like `myLabel 1,2,3`.
 
-If a subroutine is called as a function with parameters, you may use `getparam` as the very first command inside the subroutine to retreive them:
+If a subroutine is called as a function with parameters, you may use `getparam` as the very first command inside the subroutine to retrieve them:
 ```
 getparam %x,$y,%z ; three params: number, string, number
 ```
