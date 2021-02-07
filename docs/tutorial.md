@@ -6,12 +6,6 @@ If you are looking to create a new game with ponscripter, this will not help you
 
 If you are looking to modify a different ponscripter game, information here may be somewhat inaccurate, as it's written with Ryukishi's programming oddities in mind.
 
-# Useful Tools
-
-Due to the size of the game scripts, you will need a text editor which can handle large files. Visual Studio Code works quite well, and works with the syntax highlighter below.
-
-If you use Visual Studio Code, we have created a mostly working syntax highlighter for ponscripter - [instructions on installing here](https://github.com/07th-mod/script-syntax-highlighters).
-
 # The basics
 
 ponscripter is the engine that 07th-Expansion has used to release all its games in the West so far, with the sole exception of Higurashi &mdash; that used a custom Unity-based engine. Some of the games that weren't officially released used an older iteration of the engine &mdash; ONScripter &mdash; but we don't expect that those older games will ever receive console releases, so they are largely irrelevant. We expect that future 07th-Expansion games will keep using ponscripter into the foreseeable future.
@@ -41,6 +35,10 @@ Even though ponscripter can load files directly from disk, games commonly use en
 ## Debug mode
 
 While developing, you'll often want to start ponscripter with the `--debug` flag. This is because it normally just completely ignores a lot of things that would be considered errors by other engines, making it nigh-impossible to figure out why something doesn't work, or works in a weird way. On Windows, starting the engine with `--debug` will enable logging to files in `%APPDATA%\ponscripter`, which you can then read to figure out what went wrong if something did.
+
+## Editing the files
+
+Due to the size of the game scripts, you will need a text editor which can handle large files. [VS Code](https://code.visualstudio.com/) works quite well, and works with [our syntax highlighter](https://github.com/07th-mod/script-syntax-highlighters). If you are looking for something more lightweight, [Notepad++](https://notepad-plus-plus.org/) also does the job.
 
 ## Comments
 
