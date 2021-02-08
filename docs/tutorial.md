@@ -368,4 +368,17 @@ So, for starters, `jumpf` will cause the code execution to transfer to the close
 Note that you *cannot* nest these, as the execution will always transfer to the *closest* `~`. This is not a block, and does not follow block-like logic.
 If you want complex nested conditions, use the `goto` method.
 
-# To be continued...
+# The `for` loop
+ponscripter supports for loops. They look like this:
+```
+for %myVar=1 to 10 step 1
+  ^Hello!^@
+next
+```
+The `step 1` part is optional, and specifies by how much the value is to be incremented/decremented. `1` is the default.
+
+There are no `while` loops. Use `if` and `goto` to emulate those.
+# Conclusion
+You now know how the ponscripter engine's basics work. Congratulations.
+
+There is plenty this simplistic tutorial doesn't cover. But at this point, the [API docs](/ponscripter-fork/api ':ignore') should no longer be particularly terrifying to read, if you need to find out information about some other commands. You likely won't need that while working on mods, though knowing these basics should help you understand the rest if you do need it.
