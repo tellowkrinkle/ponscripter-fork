@@ -368,7 +368,7 @@ So, for starters, `jumpf` will cause the code execution to transfer to the close
 Note that you *cannot* nest these, as the execution will always transfer to the *closest* `~`. This is not a block, and does not follow block-like logic.
 If you want complex nested conditions, use the `goto` method.
 
-# The `for` loop
+# Loops
 ponscripter supports for loops. They look like this:
 ```
 for %myVar=1 to 10 step 1
@@ -377,7 +377,20 @@ next
 ```
 The `step 1` part is optional, and specifies by how much the value is to be incremented/decremented. `1` is the default.
 
-There are no `while` loops. Use `if` and `goto` to emulate those.
+There are no `while` loops. However, you can use this construction to emulate them:
+```
+mov %myVar,0
+~
+if %myVar == 5 jumpf
+  ; loop content here
+  mov %myVar,%myVar+1
+  jumpb
+~
+```
+`jumpb` is kind of like `jumpf`, but scans the script for the `~` backwards.
+So, we do our check, and if it's true we skip the loop body with `jumpf`. Inside the loop body, we `jumpb` back to the check so that we can re-do it.
+
+If this is too confusing, you might want to just use `goto` with conditions instead.
 # Conclusion
 You now know how the ponscripter engine's basics work. Congratulations.
 
