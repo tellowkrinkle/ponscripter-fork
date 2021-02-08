@@ -326,4 +326,46 @@ If a subroutine is called as a function with parameters, you may use `getparam` 
 getparam %x,$y,%z ; three params: number, string, number
 ```
 Function names may override built-in ponscripter commands. In this case, the original command can be accessed by prefixing it with an underscore, like `_ld`.
+
+# Conditional execution (`if`)
+The `if` statement in ponscripter is extremely straightforward at a glance:
+```
+if %myVar == 1 ^Hello!^@ ; Will display "Hello!" only if %myVar is equal to 1
+if %myVar == 1 || %myOtherVar == 1 mov %myThirdVar,5 ; Will only execute if either of the conditions are true
+if %myVar == 1 && %myOtherVar == 1 _ld l,"success.png",5 ; Will only execute if both conditions are true
+```
+The operators used here are exactly what you'd expect: `==`, `!=`, `<`, `>`, `<=`, `>=`, `&&` and `||`.
+
+However, there are a few caveats to keep in mind. 
+
+For starters, the comparison itself is *required* -- you cannot merely write `if %myVar`.
+
+Secondly, you may not mix `||` and `&&` in the same if-statement. It's either one or the other. If you want a more complex combination, multiple `if` statements might be required, but it's unlikely you'll run into such a thing in a VN.
+
+Finally, `if` only accepts a single statement after it... well, sort of. It actually affects the entire rest of the line, so:
+```
+if %myVar == 1 dwave 0,"myvoice.ogg":^Hello!^@:dwave 0, "myothervoice.ogg":^And goodbye!^@
+```
+All of this will only execute if `%myVar == 1` -- it will affect both the voices and both text lines, not just the first voice line.
+
+Still, sometimes the actions you'll want to perform are too awkward to fit on a single line. Unfortunately, ponscripter's `if` does not support blocks.
+
+There are two ways of handling this situation. The first is to simply use a `goto` or a `gosub` as your statement.
+
+The second is the `notif ... jumpf` pattern:
+```
+notif %myVar == 1 jumpf
+  dwave 0,"myvoice.ogg"
+  ^Hello!^@/
+  dwave 0,"myothervoice.ogg"
+  ^And goodbye!^@
+~
+```
+So, for starters, `jumpf` will cause the code execution to transfer to the closest line containing a single `~` in it.
+
+`notif` inverts the condition. That bit could be written as `if %myVar != 1 jumpf`, but using `notif` reads cleaner -- after all, we generally care about the condition when the code *does* execute, rather than when it does not.
+
+Note that you *cannot* nest these, as the execution will always transfer to the *closest* `~`. This is not a block, and does not follow block-like logic.
+If you want complex nested conditions, use the `goto` method.
+
 # To be continued...
