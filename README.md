@@ -17,8 +17,8 @@ Other engines focussed on Western-language games include:
 
 ### Documentation
 
-You may browse the documentation [online](https://07th-mod.github.io/ponscripter-fork).
-
+* [Ponscripter Tutorial](https://07th-mod.github.io/ponscripter-fork) - Most likely you should start here
+* [Ponscripter API Reference](https://07th-mod.github.io/ponscripter-fork/api/) - Mirror of Uncle Mion's Ponscripter API reference
 
 ## Compatibility
 
