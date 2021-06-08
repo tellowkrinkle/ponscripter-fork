@@ -368,7 +368,7 @@ protected:
     void mousePressEvent(SDL_MouseButtonEvent* event);
     void mouseWheelEvent(SDL_MouseWheelEvent* event);
     void mouseMoveEvent(SDL_MouseMotionEvent* event);
-    void timerEvent();
+    bool timerEvent();
     void flushEventSub(SDL_Event &event);
     void flushEvent();
     void startTimer(int count);

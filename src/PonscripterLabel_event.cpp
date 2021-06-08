@@ -1087,12 +1087,12 @@ void PonscripterLabel::keyPressEvent(SDL_KeyboardEvent* event)
     }
 }
 
-
-void PonscripterLabel::timerEvent(void)
+// Returns true if the next timer event should be delayed until the next frame
+bool PonscripterLabel::timerEvent(void)
 {
     timerEventTop:
 
-    int ret;
+    bool ret = false;
 
     if (event_mode & WAIT_TIMER_MODE) {
         int duration = proceedAnimation();
@@ -1162,9 +1162,10 @@ void PonscripterLabel::timerEvent(void)
             script_h.setCurrent(current);
             readToken();
             advancePhase();
+            ret = true;
         }
 
-        return;
+        return ret;
     }
     else {
         if (system_menu_mode != SYSTEM_NULL
@@ -1180,6 +1181,7 @@ void PonscripterLabel::timerEvent(void)
     }
 
     volatile_button_state.button = 0;
+    return ret;
 }
 
 Uint32 PonscripterLabel::getRefreshRateDelay() {
@@ -1384,8 +1386,9 @@ int PonscripterLabel::eventLoop()
             if(SDL_PeepEvents(&tmp_event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0) {
                 if(timer_event_flag && timer_event_time <= current_time) {
                     timer_event_flag = false;
-
-                    timerEvent();
+                    if (timerEvent() && timer_event_time <= last_refresh + refresh_delay) {
+                        timer_event_time = last_refresh + refresh_delay;
+                    }
                 } else if(last_refresh <= current_time && refresh_delay >= (current_time - last_refresh)) {
                     SDL_Delay(std::min(refresh_delay / 3, refresh_delay - (current_time - last_refresh)));
                 }
