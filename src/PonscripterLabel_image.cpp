@@ -320,14 +320,17 @@ void PonscripterLabel::alphaMaskBlend(SDL_Surface *mask_surface, int trans_mode,
 
     mask_value >>= fmt->Bloss;
 
-    if (( trans_mode == ALPHA_BLEND_FADE_MASK ||
-          trans_mode == ALPHA_BLEND_CROSSFADE_MASK ) && mask_surface) {
-        for ( int i=0 ; i<rect.h ; i++ ) {
-            ONSBuf *mask_buffer = (ONSBuf *)mask_surface->pixels + mask_surface->w * ((rect.y+i)%mask_surface->h);
+    if (( trans_mode == ALPHA_BLEND_FADE_MASK || trans_mode == ALPHA_BLEND_CROSSFADE_MASK ) && mask_surface) {
+        int mask_off_base_y = rect.y % mask_surface->h;
+        int mask_off_base_x = rect.x % mask_surface->w;
+        for ( int i=0, my=mask_off_base_y ; i<rect.h ; i++, my++ ) {
+            if (my >= mask_surface->h) { my = 0; }
+            ONSBuf *mask_buffer = (ONSBuf *)mask_surface->pixels + mask_surface->w * my;
             int offset=rect.x;
-            for ( int j=rect.w ; j ; j-- ){
+            for ( int j=rect.w, mx=mask_off_base_x ; j ; j--, mx++ ) {
+                if (mx >= mask_surface->w) { mx = 0; }
                 Uint32 mask2 = 0;
-                Uint32 mask = *(mask_buffer + (offset%mask_surface->w)) & fmt->Bmask;
+                Uint32 mask = *(mask_buffer + mx) & fmt->Bmask;
                 if ( mask_value > mask ){
                     mask2 = mask_value - mask;
                     if ( mask2 & overflow_mask ) mask2 = fmt->Bmask;
