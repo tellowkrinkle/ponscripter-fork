@@ -62,18 +62,21 @@
 #endif
 
 void imageFilterMean_Basic(unsigned char *src1, unsigned char *src2, unsigned char *dst, int length) {
-    int n = length + 1;
-    BASIC_MEAN();
+    for (int i = 0; i < length; i++) {
+        dst[i] = mean_pixel(src1[i], src2[i]);
+    }
 }
 
 void imageFilterAddTo_Basic(unsigned char *src, unsigned char *dst, int length) {
-    int n = length + 1;
-    BASIC_ADDTO();
+    for (int i = 0; i < length; i++) {
+        addto_pixel(dst[i], src[i]);
+    }
 }
 
 void imageFilterSubFrom_Basic(unsigned char *src, unsigned char *dst, int length) {
-    int n = length + 1;
-    BASIC_SUBFROM();
+    for (int i = 0; i < length; i++) {
+        subfrom_pixel(dst[i], src[i]);
+    }
 }
 
 void imageFilterBlend_Basic(Uint32 *dst_buffer, Uint32 *src_buffer,

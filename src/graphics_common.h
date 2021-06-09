@@ -282,40 +282,16 @@ static HELPER_FN bool is_aligned(const void* ptr, size_t alignment) {
     } \
 }
 
-
-#define MEAN_PIXEL(){\
-    int result = ((int)(*src1) + (int)(*src2)) / 2;  \
-    (*dst) = result; \
+static HELPER_FN unsigned char mean_pixel(unsigned char src1, unsigned char src2) {
+    return ((int)src1 + (int)src2) / 2;
 }
 
-#define BASIC_MEAN(){\
-    while (--n > 0) {  \
-        MEAN_PIXEL();  \
-        ++dst; ++src1; ++src2;  \
-    }  \
+static HELPER_FN void addto_pixel(unsigned char& dst, unsigned char src) {
+    int result = dst + src;
+    dst = (result < 255) ? result : 255;
 }
 
-#define ADDTO_PIXEL(){\
-    int result = (*dst) + (*src);  \
-    (*dst) = (result < 255) ? result : 255; \
+static HELPER_FN void subfrom_pixel(unsigned char& dst, unsigned char src) {
+    int result = dst - src;
+    dst = (result > 0) ? result : 0;
 }
-
-#define BASIC_ADDTO(){\
-    while (--n > 0) {  \
-        ADDTO_PIXEL();  \
-        ++dst, ++src;  \
-    }  \
-}
-
-#define SUBFROM_PIXEL(){\
-    int result = (*dst) - (*src);  \
-    (*dst) = (result > 0) ? result : 0;  \
-}
-
-#define BASIC_SUBFROM(){\
-    while(--n > 0) {  \
-        SUBFROM_PIXEL();  \
-        ++dst, ++src;  \
-    } \
-}
-
