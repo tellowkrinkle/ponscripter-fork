@@ -7,12 +7,12 @@ fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 	./configure --unsupported-compiler --with-internal-libs $STEAM
-	make
+	LDFLAGS="-dead_strip" make
 	if [[ "$(gcc --version)" =~ "Apple clang version "([0-9]+) ]] && [[ "${BASH_REMATCH[1]}" -lt 10 ]]; then
 		mv src/ponscr ponscr64
 		make distclean
 		CC="clang -arch i386" CXX="clang++ -arch i386" ./configure --unsupported-compiler --with-internal-libs $STEAM
-		CFLAGS="-arch i386" LDFLAGS="-arch i386" make MACOSX_DEPLOYMENT_TARGET=10.5
+		CFLAGS="-arch i386" LDFLAGS="-dead_strip -arch i386" make MACOSX_DEPLOYMENT_TARGET=10.5
 		mv src/ponscr ponscr32
 		lipo -create -output src/ponscr ponscr32 ponscr64
 	fi
