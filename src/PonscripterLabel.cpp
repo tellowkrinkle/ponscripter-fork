@@ -604,77 +604,7 @@ PonscripterLabel::PonscripterLabel()
       music_cmd(getenv("PLAYER_CMD")),
       midi_cmd(getenv("MUSIC_CMD"))
 {
-#if defined (USE_X86_GFX) && !defined(MACOSX)
-    // determine what functions the cpu supports (Mion)
-    {
-        unsigned int func, eax, ebx, ecx, edx;
-        func = AnimationInfo::CPUF_NONE;
-        if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
-            printf("System info: Intel CPU, with functions: ");
-            if (edx & bit_MMX) {
-                func |= AnimationInfo::CPUF_X86_MMX;
-                printf("MMX ");
-            }
-            if (edx & bit_SSE) {
-                func |= AnimationInfo::CPUF_X86_SSE;
-                printf("SSE ");
-            }
-            if (edx & bit_SSE2) {
-                func |= AnimationInfo::CPUF_X86_SSE2;
-                printf("SSE2 ");
-            }
-            printf("\n");
-        }
-        AnimationInfo::setCpufuncs(func);
-    }
-#elif defined(USE_PPC_GFX) && (defined(__linux__) || (defined(__FreeBSD__) && __FreeBSD__ >= 12))
-    // Determine if this PPC CPU supports AltiVec
-    {
-        unsigned int func = AnimationInfo::CPUF_NONE;
-        unsigned long hwcap = 0;
-#ifdef __linux__
-        hwcap = getauxval(AT_HWCAP);
-#else
-        elf_aux_info(AT_HWCAP, &hwcap, sizeof(hwcap));
-#endif
-        if (hwcap & PPC_FEATURE_HAS_ALTIVEC) {
-            func |= AnimationInfo::CPUF_PPC_ALTIVEC;
-            printf("System info: PowerPC CPU, supports altivec\n");
-        } else {
-            printf("System info: PowerPC CPU, DOES NOT support altivec\n");
-        }
-        AnimationInfo::setCpufuncs(func);
-    }
-#elif defined(USE_PPC_GFX) && (defined(MACOSX) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__))
-    // Determine if this PPC CPU supports AltiVec (Roto)
-    {
-        unsigned int func = AnimationInfo::CPUF_NONE;
-        int altivec_present = 0;
-
-        size_t length = sizeof(altivec_present);
-#if defined(MACOSX)
-        int error = sysctlbyname("hw.optional.altivec", &altivec_present, &length, NULL, 0);
-#elif defined(__FreeBSD__)
-        int error = sysctlbyname("hw.altivec", &altivec_present, &length, NULL, 0);
-#else
-        int mib[] = { CTL_MACHDEP, CPU_ALTIVEC };
-        int error = sysctl(mib, sizeof(mib)/sizeof(mib[0]), &altivec_present, &length, NULL, 0);
-#endif
-        if(error) {
-            AnimationInfo::setCpufuncs(AnimationInfo::CPUF_NONE);
-            return;
-        }
-        if(altivec_present) {
-            func |= AnimationInfo::CPUF_PPC_ALTIVEC;
-            printf("System info: PowerPC CPU, supports altivec\n");
-        } else {
-            printf("System info: PowerPC CPU, DOES NOT support altivec\n");
-        }
-        AnimationInfo::setCpufuncs(func);
-    }
-#else
-    AnimationInfo::setCpufuncs(AnimationInfo::CPUF_NONE);
-#endif
+    AnimationInfo::gfx = AcceleratedGraphicsFunctions::accelerated();
 
     disable_rescale_flag = false;
     edit_flag            = false;
@@ -788,7 +718,7 @@ void PonscripterLabel::enableWheelDownAdvance()
 
 void PonscripterLabel::disableCpuGfx()
 {
-    AnimationInfo::setCpufuncs(AnimationInfo::CPUF_NONE);
+    AnimationInfo::gfx = AcceleratedGraphicsFunctions::basic();
 }
 
 

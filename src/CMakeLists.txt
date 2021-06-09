@@ -33,6 +33,8 @@ add_executable(ponscr
 	font.h
 	Fontinfo.cpp
 	Fontinfo.h
+	graphics_accelerated.cpp
+	graphics_accelerated.h
 	graphics_altivec.cpp
 	graphics_altivec.h
 	graphics_common.h

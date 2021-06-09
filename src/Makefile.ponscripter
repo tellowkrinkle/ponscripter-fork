@@ -32,7 +32,8 @@ GUI_OBJS = PonscripterLabel$(OBJSUFFIX)					\
 	Fontinfo$(OBJSUFFIX) DirtyRect$(OBJSUFFIX) $(RC_OBJS)		\
 	resize_image$(OBJSUFFIX) encoding$(OBJSUFFIX) font$(OBJSUFFIX)	\
 	bstrlib$(OBJSUFFIX) bstrwrap$(OBJSUFFIX) pstring$(OBJSUFFIX)	\
-	cp932_encoding$(OBJSUFFIX) expression$(OBJSUFFIX) prng$(OBJSUFFIX)
+	cp932_encoding$(OBJSUFFIX) expression$(OBJSUFFIX) prng$(OBJSUFFIX) \
+	graphics_accelerated$(OBJSUFFIX)
 DECODER_OBJS = DirectReader$(OBJSUFFIX) SarReader$(OBJSUFFIX)	\
 	NsaReader$(OBJSUFFIX)
 PONSCR_OBJS = Ponscripter$(OBJSUFFIX) $(DECODER_OBJS)		\
