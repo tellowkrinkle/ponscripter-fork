@@ -321,29 +321,36 @@ void PonscripterLabel::alphaMaskBlend(SDL_Surface *mask_surface, int trans_mode,
     mask_value >>= fmt->Bloss;
 
     if (( trans_mode == ALPHA_BLEND_FADE_MASK || trans_mode == ALPHA_BLEND_CROSSFADE_MASK ) && mask_surface) {
-        int mask_off_base_y = rect.y % mask_surface->h;
-        int mask_off_base_x = rect.x % mask_surface->w;
-        for ( int i=0, my=mask_off_base_y ; i<rect.h ; i++, my++ ) {
-            if (my >= mask_surface->h) { my = 0; }
-            ONSBuf *mask_buffer = (ONSBuf *)mask_surface->pixels + mask_surface->w * my;
-            int offset=rect.x;
-            for ( int j=rect.w, mx=mask_off_base_x ; j ; j--, mx++ ) {
-                if (mx >= mask_surface->w) { mx = 0; }
-                Uint32 mask2 = 0;
-                Uint32 mask = *(mask_buffer + mx) & fmt->Bmask;
-                if ( mask_value > mask ){
-                    mask2 = mask_value - mask;
-                    if ( mask2 & overflow_mask ) mask2 = fmt->Bmask;
+        bool accelerated_ok = sizeof(ONSBuf) == 4 && fmt->Bmask == 0xff;
+        if (accelerated_ok) {
+            bool ok = AnimationInfo::gfx.alphaMaskBlend(dst, src1, src2, mask_surface, rect, mask_value);
+            accelerated_ok &= ok;
+        }
+        if (!accelerated_ok) {
+            int mask_off_base_y = rect.y % mask_surface->h;
+            int mask_off_base_x = rect.x % mask_surface->w;
+            for ( int i=0, my=mask_off_base_y ; i<rect.h ; i++, my++ ) {
+                if (my >= mask_surface->h) { my = 0; }
+                ONSBuf *mask_buffer = (ONSBuf *)mask_surface->pixels + mask_surface->w * my;
+                int offset=rect.x;
+                for ( int j=rect.w, mx=mask_off_base_x ; j ; j--, mx++ ) {
+                    if (mx >= mask_surface->w) { mx = 0; }
+                    Uint32 mask2 = 0;
+                    Uint32 mask = *(mask_buffer + mx) & fmt->Bmask;
+                    if ( mask_value > mask ){
+                        mask2 = mask_value - mask;
+                        if ( mask2 & overflow_mask ) mask2 = fmt->Bmask;
+                    }
+    #ifndef BPP16
+                    Uint32 mask1 = mask2 ^ fmt->Bmask;
+    #endif
+                    BLEND_MASK_PIXEL();
+                    ++dst_buffer, ++src1_buffer, ++src2_buffer, ++offset;
                 }
-#ifndef BPP16
-                Uint32 mask1 = mask2 ^ fmt->Bmask;
-#endif
-                BLEND_MASK_PIXEL();
-                ++dst_buffer, ++src1_buffer, ++src2_buffer, ++offset;
+                src1_buffer += rwidth;
+                src2_buffer += rwidth;
+                dst_buffer  += rwidth;
             }
-            src1_buffer += rwidth;
-            src2_buffer += rwidth;
-            dst_buffer  += rwidth;
         }
     }
     else{ // ALPHA_BLEND_CONST

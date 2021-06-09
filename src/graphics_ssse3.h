@@ -27,6 +27,7 @@
 #include <SDL.h>
 
 void imageFilterBlend_SSSE3(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length);
+bool alphaMaskBlend_SSSE3(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value);
 
 #endif
 

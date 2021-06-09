@@ -30,12 +30,14 @@ void imageFilterMean_Basic(unsigned char *src1, unsigned char *src2, unsigned ch
 void imageFilterAddTo_Basic(unsigned char *dst, unsigned char *src, int length);
 void imageFilterSubFrom_Basic(unsigned char *dst, unsigned char *src, int length);
 void imageFilterBlend_Basic(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length);
+bool alphaMaskBlend_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value);
 
 class AcceleratedGraphicsFunctions {
     void (*_imageFilterMean)(unsigned char *src1, unsigned char *src2, unsigned char *dst, int length);
     void (*_imageFilterAddTo)(unsigned char *dst, unsigned char *src, int length);
     void (*_imageFilterSubFrom)(unsigned char *dst, unsigned char *src, int length);
     void (*_imageFilterBlend)(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length);
+    bool (*_alphaMaskBlend)(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value);
 
 public:
     AcceleratedGraphicsFunctions() {
@@ -43,6 +45,7 @@ public:
         _imageFilterAddTo = imageFilterAddTo_Basic;
         _imageFilterSubFrom = imageFilterSubFrom_Basic;
         _imageFilterBlend = imageFilterBlend_Basic;
+        _alphaMaskBlend = alphaMaskBlend_Basic;
     }
     static AcceleratedGraphicsFunctions basic() { return AcceleratedGraphicsFunctions(); }
     static AcceleratedGraphicsFunctions accelerated();
@@ -61,5 +64,9 @@ public:
 
     void imageFilterBlend(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length) {
         _imageFilterBlend(dst_buffer, src_buffer, alphap, alpha, length);
+    }
+
+    bool alphaMaskBlend(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value) {
+        return _alphaMaskBlend(dst, s1, s2, mask_surface, rect, mask_value);
     }
 };

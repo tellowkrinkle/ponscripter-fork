@@ -86,6 +86,10 @@ void imageFilterBlend_Basic(Uint32 *dst_buffer, Uint32 *src_buffer,
     BASIC_BLEND();
 }
 
+bool alphaMaskBlend_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value) {
+    return false;
+}
+
 AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
     AcceleratedGraphicsFunctions out;
 
@@ -108,10 +112,12 @@ AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
             out._imageFilterAddTo = imageFilterAddTo_SSE2;
             out._imageFilterSubFrom = imageFilterSubFrom_SSE2;
             out._imageFilterBlend = imageFilterBlend_SSE2;
+            out._alphaMaskBlend = alphaMaskBlend_SSE2;
         }
         if (_M_SSE >= 0x301 || ecx & bit_SSSE3) {
             printf("SSSE3 ");
             out._imageFilterBlend = imageFilterBlend_SSSE3;
+            out._alphaMaskBlend = alphaMaskBlend_SSSE3;
         }
         printf("\n");
     }

@@ -29,6 +29,12 @@
 
 #include "graphics_common.h"
 
+template <typename Px>
+static HELPER_FN Px *getPointerToRow(SDL_Surface *surface, int y) {
+    char* buf = static_cast<char*>(surface->pixels) + surface->pitch * y;
+    return reinterpret_cast<Px*>(buf);
+}
+
 /// 0x0000gg?? -> 0x00gg00gg
 static HELPER_FN __m128i extractFromGTo16L(__m128i v) {
 #ifdef __SSSE3__
@@ -48,6 +54,16 @@ static HELPER_FN __m128i extractG(__m128i v) {
 #else
     __m128i shifted = _mm_srli_epi32(v, 8);
     return _mm_and_si128(shifted, _mm_set1_epi32(0xFF));
+#endif
+}
+
+/// 0x000000bb -> 0x00bb00bb
+static HELPER_FN __m128i extractBTo16L(__m128i v) {
+#ifdef __SSSE3__
+    __m128i mask = _mm_setr_epi8(0, 0x80, 0, 0x80, 4, 0x80, 4, 0x80, 8, 0x80, 8, 0x80, 12, 0x80, 12, 0x80);
+    return _mm_shuffle_epi8(v, mask);
+#else
+    return _mm_or_si128(_mm_slli_epi32(v, 16), v);
 #endif
 }
 
@@ -102,6 +118,98 @@ static HELPER_FN void imageFilterBlend_SSE_Common(Uint32 *dst_buffer, Uint32 *sr
     // If any pixels are left over, deal with them individually
     ++n;
     BASIC_BLEND();
+}
+
+static Uint32 blendMaskOnePixel(Uint32 s1, Uint32 s2, Uint32 msk, Uint32 mask_value) {
+    Uint32 mask2 = 0;
+    msk &= 0xFF;
+    if (mask_value > msk) {
+        mask2 = mask_value - msk;
+    }
+    if (mask2 > 0xFF) {
+        mask2 = 0xFF;
+    }
+    Uint32 mask1 = mask2 ^ 0xFF;
+    Uint32 mask_rb = (((s1 & RBMASK) * mask1 + (s2 & RBMASK) * mask2) >> 8) & RBMASK;
+    Uint32 mask_g = (((s1 & GMASK) * mask1 + (s2 & GMASK) * mask2) >> 8) & GMASK;
+    return mask_rb | mask_g;
+}
+
+static HELPER_FN bool alphaMaskBlend_SSE_Common(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value)
+{
+    if (mask_surface->w < 4) {
+        return false;
+    }
+
+    int end_x = rect.x + rect.w;
+    int end_y = rect.y + rect.h;
+    int mask_height = mask_surface->h;
+    int mask_width = mask_surface->w;
+
+    int mask_off_base_y = rect.y % mask_surface->h;
+    int mask_off_base_x = rect.x % mask_surface->w;
+    for (int y = rect.y, my = mask_off_base_y; y < end_y; y++, my++) {
+        if (my >= mask_height) { my = 0; }
+        Uint32* s1p = getPointerToRow<Uint32>(s1, y);
+        Uint32* s2p = getPointerToRow<Uint32>(s2, y);
+        Uint32* dstp = getPointerToRow<Uint32>(dst, y);
+        Uint32* mask_buf = getPointerToRow<Uint32>(mask_surface, my);
+
+        int x = rect.x, mx = mask_off_base_x;
+        while (!is_aligned(dstp + x, 16) && (x < rect.x + rect.w)) {
+            dstp[x] = blendMaskOnePixel(s1p[x], s2p[x], mask_buf[mx], mask_value);
+            x++, mx++;
+            if (mx >= mask_width) { mx = 0; }
+        }
+        __m128i mask_value_v = _mm_set1_epi32(mask_value);
+        __m128i mask_000000ff = _mm_set1_epi32(0x000000FF);
+        __m128i mask_00ff00ff = _mm_set1_epi32(0x00FF00FF);
+        while (x < (end_x - 3)) {
+            __m128i s1v = _mm_loadu_si128((__m128i*)(s1p + x));
+            __m128i s2v = _mm_loadu_si128((__m128i*)(s2p + x));
+            __m128i mskv;
+            if (__builtin_expect(mx + 3 < mask_width, true)) {
+                mskv = _mm_loadu_si128((__m128i*)(mask_buf + mx));
+            } else {
+                __attribute__((aligned(16))) Uint32 tmp[4];
+                for (int i = 0; i < 4; i++) {
+                    if (mx + i < mask_width) {
+                        tmp[i] = mask_buf[mx + i];
+                    } else {
+                        tmp[i] = mask_buf[mx + i - mask_width];
+                    }
+                }
+                mskv = _mm_load_si128((__m128i*)tmp);
+            }
+            mskv = _mm_and_si128(mskv, mask_000000ff);
+            __m128i mask2 = _mm_subs_epu16(mask_value_v, mskv);
+            mask2 = _mm_min_epi16(mask2, mask_000000ff); // min(mask2, 0xFF)
+#ifdef __clang__
+            asm("":"+x"(mask2)::); // clang optimization makes things worse, block it
+#endif
+            mask2 = extractBTo16L(mask2); // Spread alpha for multiplying (0x00aa00aa)
+            __m128i mask1 = _mm_xor_si128(mask2, mask_00ff00ff);
+            // out_rb = ((s1v & rbmask) * mask1 + (s2v & rbmask) * mask2) >> 8
+            __m128i s1v_rb = _mm_mullo_epi16(mask1, _mm_and_si128(s1v, mask_00ff00ff));
+            __m128i s2v_rb = _mm_mullo_epi16(mask2, _mm_and_si128(s2v, mask_00ff00ff));
+            __m128i out_rb = _mm_srli_epi16(_mm_add_epi16(s1v_rb, s2v_rb), 8);
+            // out_g = (((s1v & gmask) >> 8) * mask1 + ((s2v & gmask) >> 8) * mask2) & gmask
+            __m128i s1v_g = _mm_mullo_epi16(mask1, extractG(s1v));
+            __m128i s2v_g = _mm_mullo_epi16(mask2, extractG(s2v));
+            __m128i out_g = _mm_andnot_si128(mask_00ff00ff, _mm_add_epi16(s1v_g, s2v_g));
+            _mm_store_si128((__m128i*)(dstp + x), _mm_or_si128(out_rb, out_g));
+
+            x += 4;
+            mx += 4;
+            if (mx >= mask_width) { mx -= mask_width; }
+        }
+        while (x < end_x) {
+            dstp[x] = blendMaskOnePixel(s1p[x], s2p[x], mask_buf[mx], mask_value);
+            x++, mx++;
+            if (mx >= mask_width) { mx = 0; }
+        }
+    }
+    return true;
 }
 
 #endif

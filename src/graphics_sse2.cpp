@@ -117,4 +117,9 @@ void imageFilterBlend_SSE2(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap
     imageFilterBlend_SSE_Common(dst_buffer, src_buffer, alphap, alpha, length);
 }
 
+bool alphaMaskBlend_SSE2(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value)
+{
+    return alphaMaskBlend_SSE_Common(dst, s1, s2, mask_surface, rect, mask_value);
+}
+
 #endif
