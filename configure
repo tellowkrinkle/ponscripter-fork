@@ -399,23 +399,6 @@ esac
 
 if $USE_CPU_GFX
 then
-    case "x$CC_VER" in
-    x4.*)
-        case "x$CC_VER" in
-            x4.1.*|x4.2.*)
-                    USE_CPU_GFX=false ;;
-            *)      USE_CPU_GFX=true ;;
-        esac;;
-    *)      USE_CPU_GFX=false ;;
-    esac
-    if not $USE_CPU_GFX
-    then
-        echo "     Not GCC 4.3+, won't compile custom graphics routines"
-    fi
-fi
-
-if $USE_CPU_GFX
-then
     case "x$ARCH" in
     xx86_64) USE_X86_GFX=true
              GFX_MMX_FLAGS="-mmmx -DUSE_X86_GFX"
