@@ -409,9 +409,10 @@ then
     xx86) USE_X86_GFX=true
           GFX_MMX_FLAGS="-mmmx -DUSE_X86_GFX"
           GFX_SSE2_FLAGS="-msse2 -DUSE_X86_GFX"
-          GFX_EXT_OBJS="graphics_mmx.o graphics_sse2.o"
+          GFX_SSSE3_FLAGS="-mssse3 -DUSE_X86_GFX"
+          GFX_EXT_OBJS="graphics_mmx.o graphics_sse2.o graphics_ssse3.o"
           CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_X86_GFX"
-          echo "     Compiling with x86 MMX/SSE2 custom graphics routines";;
+          echo "     Compiling with x86 MMX/SSE2/SSSE3 custom graphics routines";;
     xPPC) USE_PPC_GFX=true
           GFX_ALTIVEC_FLAGS="-maltivec -DUSE_PPC_GFX"
           GFX_EXT_OBJS="graphics_altivec.o"
@@ -1128,6 +1129,9 @@ fi
 if ${USE_X86_GFX:-false}
 then
 cat >> $MAKEFILE <<_EOF
+
+graphics_ssse3.o: graphics_ssse3.cpp
+	\$(CXX) -MMD \$(CXXSTD) \$(PSCFLAGS) \$(INCS) \$(DEFS) $GFX_SSSE3_FLAGS -c \$< -o \$@
 
 graphics_sse2.o: graphics_sse2.cpp
 	\$(CXX) -MMD \$(CXXSTD) \$(PSCFLAGS) \$(INCS) \$(DEFS) $GFX_SSE2_FLAGS -c \$< -o \$@

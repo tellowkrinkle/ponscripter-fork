@@ -24,6 +24,9 @@
 
 // Incorporates code originally from AnimationInfo.cpp,
 // copyright (c) 2001-2008 Ogapee
+#pragma once
+#include <stdlib.h>
+
 #ifdef BPP16
 #define BPP 16
 #define BLENDMASK  0x07e0f81f
@@ -65,6 +68,16 @@
 #define RGBMASK 0x00ffffff
 #define RBMASK  0x00ff00ff
 #define MEDGRAY 0x88888888
+
+#ifdef __clang__
+# define HELPER_FN inline __attribute__((always_inline, artificial))
+#else
+# define HELPER_FN inline __attribute__((always_inline))
+#endif
+
+static HELPER_FN bool is_aligned(const void* ptr, size_t alignment) {
+    return reinterpret_cast<size_t>(ptr) % alignment == 0;
+}
 
 #define SET_PIXEL32(rgb, alpha) {\
     *dst_buffer = (rgb);\

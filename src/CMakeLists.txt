@@ -38,10 +38,13 @@ add_executable(ponscr
 	graphics_altivec.cpp
 	graphics_altivec.h
 	graphics_common.h
+	graphics_x86_common.h
 	graphics_mmx.cpp
 	graphics_mmx.h
 	graphics_sse2.cpp
 	graphics_sse2.h
+	graphics_ssse3.cpp
+	graphics_ssse3.h
 	NsaReader.cpp
 	NsaReader.h
 	Ponscripter.cpp
@@ -139,6 +142,7 @@ if (USE_CPU_GFX)
 		target_compile_definitions(ponscr PRIVATE USE_X86_GFX)
 		set_source_files_properties(graphics_mmx.cpp PROPERTIES COMPILE_FLAGS "-mmmx")
 		set_source_files_properties(graphics_sse2.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+		set_source_files_properties(graphics_ssse3.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
 	elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL ppc OR CMAKE_SYSTEM_PROCESSOR STREQUAL ppc64)
 		target_compile_definitions(ponscr PRIVATE USE_PPC_GFX)
 		set_source_files_properties(graphics_altivec.cpp PROPERTIES COMPILE_FLAGS "-maltivec")

@@ -28,11 +28,14 @@
 #include "graphics_altivec.h"
 #include "graphics_mmx.h"
 #include "graphics_sse2.h"
+#include "graphics_ssse3.h"
 
 #include <stdio.h>
 
 #ifdef USE_X86_GFX
-# if defined(__SSE2__)
+# if defined(__SSSE3__)
+#  define _M_SSE 0x301
+# elif defined(__SSE2__)
 #  define _M_SSE 0x200
 # elif defined(__SSE__)
 #  define _M_SSE 0x100
@@ -41,7 +44,6 @@
 # else
 #  define _M_SSE 0x000
 #endif
-
 # include <cpuid.h>
 #elif defined(USE_PPC_GFX)
 # if defined(__linux__) || (defined(__FreeBSD__) && __FreeBSD__ >= 12)
@@ -103,6 +105,10 @@ AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
             out._imageFilterAddTo = imageFilterAddTo_SSE2;
             out._imageFilterSubFrom = imageFilterSubFrom_SSE2;
             out._imageFilterBlend = imageFilterBlend_SSE2;
+        }
+        if (_M_SSE >= 0x301 || ecx & bit_SSSE3) {
+            printf("SSSE3 ");
+            out._imageFilterBlend = imageFilterBlend_SSSE3;
         }
         printf("\n");
     }
