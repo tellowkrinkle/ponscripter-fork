@@ -400,25 +400,25 @@ esac
 if $USE_CPU_GFX
 then
     case "x$ARCH" in
-    xx86_64) USE_X86_GFX=true
-             GFX_MMX_FLAGS="-mmmx -DUSE_X86_GFX"
-             GFX_SSE2_FLAGS="-msse2 -DUSE_X86_GFX"
-             GFX_EXT_OBJS="graphics_mmx.o graphics_sse2.o"
-             CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_X86_GFX"
-             echo "     Compiling with x86 MMX/SSE2 custom graphics routines";;
-    x*86)    USE_X86_GFX=true
-             GFX_MMX_FLAGS="-mmmx -DUSE_X86_GFX"
-             GFX_SSE2_FLAGS="-msse2 -DUSE_X86_GFX"
-             GFX_EXT_OBJS="graphics_mmx.o graphics_sse2.o"
-             CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_X86_GFX"
-             echo "     Compiling with x86 MMX/SSE2 custom graphics routines";;
-    xppc)    USE_PPC_GFX=true
-             GFX_ALTIVEC_FLAGS="-maltivec -DUSE_PPC_GFX"
-             GFX_EXT_OBJS="graphics_altivec.o"
-             CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_PPC_GFX"
-             echo "     Compiling with PPC custom graphics routines";;
-    *)       GFX_EXT_OBJS=
-             echo "     No custom graphics routines available for the given architecture";;
+    xx86_64) GFX_ARCH="x86";;
+    x*86)    GFX_ARCH="x86";;
+    xppc)    GFX_ARCH="PPC";;
+    *)       GFX_ARCH="";
+    esac
+    case "x$GFX_ARCH" in
+    xx86) USE_X86_GFX=true
+          GFX_MMX_FLAGS="-mmmx -DUSE_X86_GFX"
+          GFX_SSE2_FLAGS="-msse2 -DUSE_X86_GFX"
+          GFX_EXT_OBJS="graphics_mmx.o graphics_sse2.o"
+          CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_X86_GFX"
+          echo "     Compiling with x86 MMX/SSE2 custom graphics routines";;
+    xPPC) USE_PPC_GFX=true
+          GFX_ALTIVEC_FLAGS="-maltivec -DUSE_PPC_GFX"
+          GFX_EXT_OBJS="graphics_altivec.o"
+          CFLAGSEXTRA="$CFLAGSEXTRA -DUSE_PPC_GFX"
+          echo "     Compiling with PPC custom graphics routines";;
+    *)    GFX_EXT_OBJS=
+          echo "     No custom graphics routines available for the given architecture";;
     esac
 fi
 
