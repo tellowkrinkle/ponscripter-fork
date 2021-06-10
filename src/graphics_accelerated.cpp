@@ -90,11 +90,48 @@ bool alphaMaskBlend_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SD
     return false;
 }
 
+enum Manufacturer {
+    MF_UNKNOWN,
+    MF_INTEL,
+    MF_AMD,
+};
+
+static bool hasFastPSHUFB(Manufacturer mf, int eax, int ecx) {
+    if (!(ecx & bit_SSSE3)) { return false; }
+    if (mf != MF_INTEL) { return true; }
+    static const uint8_t SLOW_PSHUFB[] = { // From https://en.wikichip.org/wiki/intel/cpuid
+        0x0F, 0x16, // Merom
+        0x1C, 0x2C, // Bonnell
+        0x27, 0x35, 0x36, // Saltwell
+        0x37, 0x4A, 0x4D, 0x5A, 0x5D, // Silvermont
+        0x4C, // Airmont
+    };
+    uint8_t family = (eax >> 8) & 0xF;
+    if (family != 6) { return true; }
+    uint8_t model = (eax >> 4) & 0xF;
+    model |= (eax >> 12) & 0xF0;
+    for (int i = 0; i < sizeof(SLOW_PSHUFB); i++) {
+        if (SLOW_PSHUFB[i] == model) {
+            return false;
+        }
+    }
+    return true;
+}
+
 AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
     AcceleratedGraphicsFunctions out;
 
 #ifdef USE_X86_GFX
+    Manufacturer mf = MF_UNKNOWN;
     unsigned int func, eax, ebx, ecx, edx;
+    if (__get_cpuid(0, &eax, &ebx, &ecx, &edx) != 0) {
+        if (ebx == 0x68747541 && edx == 0x69746e65 && ecx == 0x444d4163) {
+            mf = MF_AMD;
+        }
+        if (ebx == 0x756e6547 && edx == 0x49656e69 && ecx == 0x6c65746e) {
+            mf = MF_INTEL;
+        }
+    }
     if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
         printf("System info: Intel CPU, with functions: ");
         if (_M_SSE >= 0x001 || edx & bit_MMX) {
@@ -114,7 +151,7 @@ AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
             out._imageFilterBlend = imageFilterBlend_SSE2;
             out._alphaMaskBlend = alphaMaskBlend_SSE2;
         }
-        if (_M_SSE >= 0x301 || ecx & bit_SSSE3) {
+        if (_M_SSE >= 0x301 || hasFastPSHUFB(mf, eax, ecx)) {
             printf("SSSE3 ");
             out._imageFilterBlend = imageFilterBlend_SSSE3;
             out._alphaMaskBlend = alphaMaskBlend_SSSE3;
