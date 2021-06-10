@@ -1050,19 +1050,6 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
                 global_variable_border = global_variable_border * 10
 		                       + *buf++ - '0';
         }
-        else if (!strncmp(buf, "localsave", 9)) {
-            buf += 9;
-            if (*buf == '=') { buf++; }
-            const char* end = buf;
-            while (*end != ',' && *end != '\n') {
-                end++;
-            }
-            local_savedir = pstring(buf, end - buf);
-            if (!local_savedir.ends_with("/")) {
-                local_savedir += "/";
-            }
-            buf = end;
-        }
         else if (!strncmp(buf, "-*-", 3)) {
             buf++;
             while (*buf != '\n' &&
@@ -1081,16 +1068,23 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
         while (isawspace(*buf)) ++buf;
     }
 
-    // game ID check
-    if ((*buf++ == ';') && (game_identifier.length() == 0))  {
-        while (isawspace(*buf)) ++buf;
-        if (!strncmp(buf, "gameid ", 7)) {
+    while (*buf++ == ';') {
+        const char* end = strchr(buf, '\n');
+        if (!end) { break; }
+        if (game_identifier.length() == 0 && !strncmp(buf, "gameid ", 7)) {
             buf += 7;
             int i = 0;
             while (buf[i++] >= ' ') ;
             game_identifier = pstring(buf, i - 1);
-            buf += i;
         }
+        else if (!strncmp(buf, "localsave ", 10)) {
+            buf += 10;
+            local_savedir = pstring(buf, end - buf);
+            if (!local_savedir.ends_with("/")) {
+                local_savedir += "/";
+            }
+        }
+        buf = end + 1;
     }
 
     return labelScript();
