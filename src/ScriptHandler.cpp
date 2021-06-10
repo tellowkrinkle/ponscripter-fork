@@ -1079,7 +1079,7 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
         }
         else if (!strncmp(buf, "localsave ", 10)) {
             buf += 10;
-            local_savedir = pstring(buf, end - buf);
+            local_savedir = pstring(buf, end - buf).trim();
             if (!local_savedir.ends_with("/")) {
                 local_savedir += "/";
             }
