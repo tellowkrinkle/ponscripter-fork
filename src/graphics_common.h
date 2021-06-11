@@ -26,6 +26,7 @@
 // copyright (c) 2001-2008 Ogapee
 #pragma once
 #include <stdlib.h>
+#include <SDL.h>
 
 #ifdef BPP16
 #define BPP 16
@@ -77,6 +78,27 @@
 
 static HELPER_FN bool is_aligned(const void* ptr, size_t alignment) {
     return reinterpret_cast<size_t>(ptr) % alignment == 0;
+}
+
+template <typename Px>
+static HELPER_FN Px *getPointerToRow(SDL_Surface *surface, int y) {
+    char* buf = static_cast<char*>(surface->pixels) + surface->pitch * y;
+    return reinterpret_cast<Px*>(buf);
+}
+
+static Uint32 blendMaskOnePixel(Uint32 s1, Uint32 s2, Uint32 msk, Uint32 mask_value) {
+    Uint32 mask2 = 0;
+    msk &= 0xFF;
+    if (mask_value > msk) {
+        mask2 = mask_value - msk;
+    }
+    if (mask2 > 0xFF) {
+        mask2 = 0xFF;
+    }
+    Uint32 mask1 = mask2 ^ 0xFF;
+    Uint32 mask_rb = (((s1 & RBMASK) * mask1 + (s2 & RBMASK) * mask2) >> 8) & RBMASK;
+    Uint32 mask_g = (((s1 & GMASK) * mask1 + (s2 & GMASK) * mask2) >> 8) & GMASK;
+    return mask_rb | mask_g;
 }
 
 #define SET_PIXEL32(rgb, alpha) {\

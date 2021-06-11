@@ -90,6 +90,20 @@ bool alphaMaskBlend_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SD
     return false;
 }
 
+void alphaMaskBlendConst_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value)
+{
+    int end_x = rect.x + rect.w;
+    int end_y = rect.y + rect.h;
+    for (int y = rect.y; y < end_y; y++) {
+        Uint32* s1p = getPointerToRow<Uint32>(s1, y);
+        Uint32* s2p = getPointerToRow<Uint32>(s2, y);
+        Uint32* dstp = getPointerToRow<Uint32>(dst, y);
+        for (int x = rect.x; x < end_x; x++) {
+            dstp[x] = blendMaskOnePixel(s1p[x], s2p[x], 0, mask_value);
+        }
+    }
+}
+
 enum Manufacturer {
     MF_UNKNOWN,
     MF_INTEL,
@@ -150,11 +164,13 @@ AcceleratedGraphicsFunctions AcceleratedGraphicsFunctions::accelerated() {
             out._imageFilterSubFrom = imageFilterSubFrom_SSE2;
             out._imageFilterBlend = imageFilterBlend_SSE2;
             out._alphaMaskBlend = alphaMaskBlend_SSE2;
+            out._alphaMaskBlendConst = alphaMaskBlendConst_SSE2;
         }
         if (_M_SSE >= 0x301 || hasFastPSHUFB(mf, eax, ecx)) {
             printf("SSSE3 ");
             out._imageFilterBlend = imageFilterBlend_SSSE3;
             out._alphaMaskBlend = alphaMaskBlend_SSSE3;
+            out._alphaMaskBlendConst = alphaMaskBlendConst_SSSE3;
         }
         printf("\n");
     }

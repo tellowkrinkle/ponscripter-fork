@@ -122,4 +122,9 @@ bool alphaMaskBlend_SSE2(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL
     return alphaMaskBlend_SSE_Common(dst, s1, s2, mask_surface, rect, mask_value);
 }
 
+void alphaMaskBlendConst_SSE2(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value)
+{
+    alphaMaskBlendConst_SSE_Common(dst, s1, s2, rect, mask_value);
+}
+
 #endif

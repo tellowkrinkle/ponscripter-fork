@@ -354,18 +354,23 @@ void PonscripterLabel::alphaMaskBlend(SDL_Surface *mask_surface, int trans_mode,
         }
     }
     else{ // ALPHA_BLEND_CONST
-        Uint32 mask2 = mask_value & fmt->Bmask;
+        if (sizeof(ONSBuf) == 4) {
+            AnimationInfo::gfx.alphaMaskBlendConst(dst, src1, src2, rect, mask_value);
+        }
+        else {
+            Uint32 mask2 = mask_value & fmt->Bmask;
 #ifndef BPP16
-        Uint32 mask1 = mask2 ^ fmt->Bmask;
+            Uint32 mask1 = mask2 ^ fmt->Bmask;
 #endif
-        for ( int i=rect.h ; i ; i-- ) {
-            for ( int j=rect.w ; j ; j-- ){
-                BLEND_MASK_PIXEL();
-                ++dst_buffer, ++src1_buffer, ++src2_buffer;
+            for ( int i=rect.h ; i ; i-- ) {
+                for ( int j=rect.w ; j ; j-- ){
+                    BLEND_MASK_PIXEL();
+                    ++dst_buffer, ++src1_buffer, ++src2_buffer;
+                }
+                src1_buffer += rwidth;
+                src2_buffer += rwidth;
+                dst_buffer  += rwidth;
             }
-            src1_buffer += rwidth;
-            src2_buffer += rwidth;
-            dst_buffer  += rwidth;
         }
     }
     

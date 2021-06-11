@@ -29,12 +29,6 @@
 
 #include "graphics_common.h"
 
-template <typename Px>
-static HELPER_FN Px *getPointerToRow(SDL_Surface *surface, int y) {
-    char* buf = static_cast<char*>(surface->pixels) + surface->pitch * y;
-    return reinterpret_cast<Px*>(buf);
-}
-
 /// 0x0000gg?? -> 0x00gg00gg
 static HELPER_FN __m128i extractFromGTo16L(__m128i v) {
 #ifdef __SSSE3__
@@ -120,21 +114,6 @@ static HELPER_FN void imageFilterBlend_SSE_Common(Uint32 *dst_buffer, Uint32 *sr
     BASIC_BLEND();
 }
 
-static Uint32 blendMaskOnePixel(Uint32 s1, Uint32 s2, Uint32 msk, Uint32 mask_value) {
-    Uint32 mask2 = 0;
-    msk &= 0xFF;
-    if (mask_value > msk) {
-        mask2 = mask_value - msk;
-    }
-    if (mask2 > 0xFF) {
-        mask2 = 0xFF;
-    }
-    Uint32 mask1 = mask2 ^ 0xFF;
-    Uint32 mask_rb = (((s1 & RBMASK) * mask1 + (s2 & RBMASK) * mask2) >> 8) & RBMASK;
-    Uint32 mask_g = (((s1 & GMASK) * mask1 + (s2 & GMASK) * mask2) >> 8) & GMASK;
-    return mask_rb | mask_g;
-}
-
 static HELPER_FN bool alphaMaskBlend_SSE_Common(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value)
 {
     if (mask_surface->w < 4) {
@@ -156,7 +135,7 @@ static HELPER_FN bool alphaMaskBlend_SSE_Common(SDL_Surface* dst, SDL_Surface *s
         Uint32* mask_buf = getPointerToRow<Uint32>(mask_surface, my);
 
         int x = rect.x, mx = mask_off_base_x;
-        while (!is_aligned(dstp + x, 16) && (x < rect.x + rect.w)) {
+        while (!is_aligned(dstp + x, 16) && (x < end_x)) {
             dstp[x] = blendMaskOnePixel(s1p[x], s2p[x], mask_buf[mx], mask_value);
             x++, mx++;
             if (mx >= mask_width) { mx = 0; }
@@ -210,6 +189,42 @@ static HELPER_FN bool alphaMaskBlend_SSE_Common(SDL_Surface* dst, SDL_Surface *s
         }
     }
     return true;
+}
+
+static HELPER_FN void alphaMaskBlendConst_SSE_Common(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value)
+{
+    int end_x = (rect.x + rect.w) * 4;
+    int end_y = rect.y + rect.h;
+    for (int y = rect.y; y < end_y; y++) {
+        char* s1p = getPointerToRow<char>(s1, y);
+        char* s2p = getPointerToRow<char>(s2, y);
+        char* dstp = getPointerToRow<char>(dst, y);
+
+        int x = rect.x * 4;
+        for (; !is_aligned(dstp + x, 16) && (x < end_x); x += 4) {
+            *(Uint32*)(dstp + x) = blendMaskOnePixel(*(Uint32*)(s1p + x), *(Uint32*)(s2p + x), 0, mask_value);
+        }
+        __m128i mask_000000ff = _mm_set1_epi32(0x000000FF);
+        __m128i mask_00ff00ff = _mm_set1_epi32(0x00FF00FF);
+        __m128i mask2 = _mm_set1_epi16(mask_value);
+        __m128i mask1 = _mm_xor_si128(mask2, mask_00ff00ff);
+        for (; x < (end_x - 15); x += 16) {
+            __m128i s1v = _mm_loadu_si128((__m128i*)(s1p + x));
+            __m128i s2v = _mm_loadu_si128((__m128i*)(s2p + x));
+            // out_rb = ((s1v & rbmask) * mask1 + (s2v & rbmask) * mask2) >> 8
+            __m128i s1v_rb = _mm_mullo_epi16(mask1, _mm_and_si128(s1v, mask_00ff00ff));
+            __m128i s2v_rb = _mm_mullo_epi16(mask2, _mm_and_si128(s2v, mask_00ff00ff));
+            __m128i out_rb = _mm_srli_epi16(_mm_add_epi16(s1v_rb, s2v_rb), 8);
+            // out_g = (((s1v & gmask) >> 8) * mask1 + ((s2v & gmask) >> 8) * mask2) & gmask
+            __m128i s1v_g = _mm_mullo_epi16(mask1, extractG(s1v));
+            __m128i s2v_g = _mm_mullo_epi16(mask2, extractG(s2v));
+            __m128i out_g = _mm_andnot_si128(mask_00ff00ff, _mm_add_epi16(s1v_g, s2v_g));
+            _mm_store_si128((__m128i*)(dstp + x), _mm_or_si128(out_rb, out_g));
+        }
+        for (; x < end_x; x += 4) {
+            *(Uint32*)(dstp + x) = blendMaskOnePixel(*(Uint32*)(s1p + x), *(Uint32*)(s2p + x), 0, mask_value);
+        }
+    }
 }
 
 #endif

@@ -31,6 +31,7 @@ void imageFilterAddTo_Basic(unsigned char *dst, unsigned char *src, int length);
 void imageFilterSubFrom_Basic(unsigned char *dst, unsigned char *src, int length);
 void imageFilterBlend_Basic(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length);
 bool alphaMaskBlend_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value);
+void alphaMaskBlendConst_Basic(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value);
 
 class AcceleratedGraphicsFunctions {
     void (*_imageFilterMean)(unsigned char *src1, unsigned char *src2, unsigned char *dst, int length);
@@ -38,6 +39,7 @@ class AcceleratedGraphicsFunctions {
     void (*_imageFilterSubFrom)(unsigned char *dst, unsigned char *src, int length);
     void (*_imageFilterBlend)(Uint32 *dst_buffer, Uint32 *src_buffer, Uint8 *alphap, int alpha, int length);
     bool (*_alphaMaskBlend)(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value);
+    void (*_alphaMaskBlendConst)(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value);
 
 public:
     AcceleratedGraphicsFunctions() {
@@ -46,6 +48,7 @@ public:
         _imageFilterSubFrom = imageFilterSubFrom_Basic;
         _imageFilterBlend = imageFilterBlend_Basic;
         _alphaMaskBlend = alphaMaskBlend_Basic;
+        _alphaMaskBlendConst = alphaMaskBlendConst_Basic;
     }
     static AcceleratedGraphicsFunctions basic() { return AcceleratedGraphicsFunctions(); }
     static AcceleratedGraphicsFunctions accelerated();
@@ -68,5 +71,9 @@ public:
 
     bool alphaMaskBlend(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, SDL_Surface *mask_surface, const SDL_Rect& rect, Uint32 mask_value) {
         return _alphaMaskBlend(dst, s1, s2, mask_surface, rect, mask_value);
+    }
+
+    void alphaMaskBlendConst(SDL_Surface* dst, SDL_Surface *s1, SDL_Surface *s2, const SDL_Rect& rect, Uint32 mask_value) {
+        _alphaMaskBlendConst(dst, s1, s2, rect, mask_value);
     }
 };
