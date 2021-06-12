@@ -3713,6 +3713,11 @@ int PonscripterLabel::barCommand(const pstring& cmd)
 
     bar_info[no]->color = readColour(script_h.readStrValue());
 
+    if (bar_info[no]->max_param == 0) {
+        // Prevent divide-by-zero errors
+        bar_info[no]->max_param = 1;
+    }
+
     int w = bar_info[no]->max_width * bar_info[no]->param / bar_info[no]->max_param;
     if (bar_info[no]->max_width > 0 && w > 0) {
         bar_info[no]->pos.w = w;
