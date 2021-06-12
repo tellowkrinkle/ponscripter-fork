@@ -67,7 +67,8 @@ ScriptHandler::ScriptHandler()
 
     arrays.clear();
 
-    screen_size = SCREEN_SIZE_640x480;
+    screen_width = 640;
+    screen_height = 480;
     res_multiplier = 2; // Default to 2x mode for Umineko
     multiplier_style = UMINEKO;
     global_variable_border = 200;
@@ -1000,33 +1001,27 @@ int ScriptHandler::readScript(DirPaths *path, const char* prefer_name)
     while (script_buffer[0] == ';') {
         if (!strncmp(buf, "mode", 4)) {
             buf += 4;
-            if (!strncmp(buf, "960", 3)) {
-                screen_size = SCREEN_SIZE_960x600;
-                buf += 3;
-            } else if (!strncmp(buf, "800", 3)) {
-                screen_size = SCREEN_SIZE_800x600;
-                buf += 3;
-            } else if (!strncmp(buf, "400", 3)) {
-                screen_size = SCREEN_SIZE_400x300;
-                buf += 3;
-            } else if (!strncmp(buf, "320", 3)) {
-                screen_size = SCREEN_SIZE_320x240;
-                buf += 3;
-            } else if (!strncmp(buf, "w360", 4)) {
-                screen_size = SCREEN_SIZE_w360;
-                buf += 4;
-            } else if (!strncmp(buf, "w540", 4)) {
-                screen_size = SCREEN_SIZE_w540;
-                buf += 4;
-            } else if (!strncmp(buf, "w720", 4)) {
-                screen_size = SCREEN_SIZE_w720;
-                buf += 4;
-            } else if (!strncmp(buf, "w1080", 5)) {
-                screen_size = SCREEN_SIZE_w1080;
-                buf += 5;
+            bool is_wide = false;
+            int number = 0;
+            if (*buf == 'w') {
+                is_wide = true;
+                buf++;
+            }
+            while (*buf >= '0' && *buf <= '9') {
+                number *= 10;
+                number += *buf - '0';
+                buf++;
+            }
+            if (is_wide) {
+                screen_width = number * 16 / 9;
+                screen_height = number;
+            } else if (number == 960) {
+                // Special case to keep compatibility with old Ponscripter
+                screen_width = 960;
+                screen_height = 600;
             } else {
-                screen_size = SCREEN_SIZE_640x480;
-                buf += 3;
+                screen_width = number;
+                screen_height = number * 3 / 4;
             }
 
             if (!strncmp(buf, "@2x", 3)) {

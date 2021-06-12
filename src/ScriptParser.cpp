@@ -338,62 +338,24 @@ int ScriptParser::open(const char* preferred_script)
     screen_ratio2 = 1;
     res_multiplier = script_h.res_multiplier;
     multiplier_style = script_h.multiplier_style;
+    script_width = script_h.screen_width;
+    script_height = script_h.screen_height;
 
-    switch (script_h.screen_size) {
-    case ScriptHandler::SCREEN_SIZE_960x600:
 #ifdef PDA
+    if (script_width == 960 && script_height == 600) {
         screen_ratio1 = 2;
         screen_ratio2 = 5;
-#endif
-        screen_width  = 960;
-        screen_height = 600;
-        break;
-    case ScriptHandler::SCREEN_SIZE_800x600:
-#ifdef PDA
+    } else if (script_width == 800 && script_height == 600) {
         screen_ratio1 = 2;
         screen_ratio2 = 5;
-#endif
-        script_width = 800;
-        script_height = 600;
-        break;
-    case ScriptHandler::SCREEN_SIZE_400x300:
-#ifdef PDA
+    } else if (script_width == 400 && script_height = 300) {
         screen_ratio1 = 4;
         screen_ratio2 = 5;
-#endif
-        script_width = 400;
-        script_height = 300;
-        break;
-    case ScriptHandler::SCREEN_SIZE_320x240:
-        script_width = 320;
-        script_height = 240;
-        break;
-    case ScriptHandler::SCREEN_SIZE_w360:
-        script_width = 640;
-        script_height = 360;
-        break;
-    case ScriptHandler::SCREEN_SIZE_w540:
-        script_width = 960;
-        script_height = 540;
-        break;
-    case ScriptHandler::SCREEN_SIZE_w720:
-        script_width  = 1280;
-        script_height = 720;
-        break;
-    case ScriptHandler::SCREEN_SIZE_w1080:
-        script_width  = 1920;
-        script_height = 1080;
-        break;
-    case ScriptHandler::SCREEN_SIZE_640x480:
-    default:
-#ifdef PDA
+    } else {
         screen_ratio1 = 1;
         screen_ratio2 = 2;
-#endif
-        script_width  = 640;
-        script_height = 480;
-        break;
     }
+#endif
 
     screen_width  = script_width * screen_ratio1 / screen_ratio2;
     screen_height = script_height * screen_ratio1 / screen_ratio2;
