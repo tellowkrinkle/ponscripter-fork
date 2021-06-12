@@ -166,7 +166,7 @@ SDL_Surface *PonscripterLabel::loadImage(const pstring& filename,
     
 }
 
-SDL_Surface *PonscripterLabel::createRectangleSurface(const pstring& filename)
+SDL_Surface *PonscripterLabel::createRectangleSurface(const char* filename)
 {
     int c=1, w=0, h=0;
     while (filename[c] != 0x0a && filename[c] != 0x00){
@@ -204,7 +204,7 @@ SDL_Surface *PonscripterLabel::createRectangleSurface(const pstring& filename)
 
     c = c2;
     for (int i=0 ; i<n ; i++){
-        rgb_t col = readColour((const char *)filename + c);
+        rgb_t col = readColour(filename + c);
         c += 7;
         while (filename[c] == ' ' || filename[c] == '\t') c++;
         
