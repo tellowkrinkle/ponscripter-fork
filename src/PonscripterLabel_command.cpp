@@ -1381,8 +1381,7 @@ int PonscripterLabel::playCommand(const pstring& cmd)
 
 int PonscripterLabel::ofscopyCommand(const pstring& cmd)
 {
-  fprintf(stderr, "Non-upgraded command, help\n");
-    SDL_BlitSurface(screen_surface, NULL, accumulation_surface, NULL);
+    fprintf(stderr, "Non-upgraded command, help\n");
 
     return RET_CONTINUE;
 }
@@ -2336,7 +2335,7 @@ int PonscripterLabel::getscreenshotCommand(const pstring& cmd)
 	    SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
 
     SDL_Surface* surface =
-	SDL_ConvertSurface(screen_surface,image_surface->format, SDL_SWSURFACE);
+        SDL_ConvertSurface(accumulation_surface, image_surface->format, SDL_SWSURFACE);
 
     AnimationInfo::resizeSurface(surface, screenshot_surface);
     SDL_FreeSurface(surface);
@@ -2786,7 +2785,7 @@ int PonscripterLabel::drawsp3Command(const pstring& cmd)
         si.inv_mat[1][1] =  si.mat[0][0] * 1000 / denom;
     }
 
-    SDL_Rect clip = { 0, 0, screen_surface->w, screen_surface->h };
+    SDL_Rect clip = { 0, 0, accumulation_surface->w, accumulation_surface->h };
     si.blendOnSurface2(accumulation_surface, x, y, clip, alpha);
     si.setCell(old_cell_no);
 
@@ -2811,7 +2810,7 @@ int PonscripterLabel::drawsp2Command(const pstring& cmd)
     int old_cell_no = si.current_cell;
     si.setCell(cell_no);
 
-    SDL_Rect clip = { 0, 0, screen_surface->w, screen_surface->h };
+    SDL_Rect clip = { 0, 0, accumulation_surface->w, accumulation_surface->h };
     si.blendOnSurface2(accumulation_surface, si.pos.x, si.pos.y, clip, alpha);
     si.setCell(old_cell_no);
 
@@ -2876,7 +2875,7 @@ int PonscripterLabel::drawbg2Command(const pstring& cmd)
     bg_info.rot     = script_h.readIntValue();
     bg_info.calcAffineMatrix();
 
-    SDL_Rect clip = { 0, 0, screen_surface->w, screen_surface->h };
+    SDL_Rect clip = { 0, 0, accumulation_surface->w, accumulation_surface->h };
     bg_info.blendOnSurface2(accumulation_surface, x, y, clip, 256);
 
     return RET_CONTINUE;
@@ -3395,13 +3394,11 @@ int PonscripterLabel::bltCommand(const pstring& cmd)
         SDL_Rect src_rect = { sx, sy, sw, sh };
         SDL_Rect dst_rect = { dx, dy, dw, dh };
 
-        SDL_BlitSurface(btndef_info.image_surface, &src_rect, screen_surface, &dst_rect);
+        SDL_BlitSurface(btndef_info.image_surface, &src_rect, accumulation_surface, &dst_rect);
         //TODO, fix this. haven't found it used yet
         //SDL_UpdateRect(screen_surface, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
-        SDL_UpdateTexture(screen_tex, NULL, screen_surface->pixels, screen_surface->pitch);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, screen_tex, NULL, NULL);
-        SDL_RenderPresent(renderer);
+        SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch);
+        rerender();
         dirty_rect.clear();
     }
     else {
@@ -3528,13 +3525,11 @@ int PonscripterLabel::endrollCommand(const pstring& cmd)
             amountcounter += dist;
             SDL_Rect src_rect = { sx, sy + amountcounter, sw, sh };
             SDL_Rect dst_rect = { dx, dy, dw, dh };
-            SDL_BlitSurface(btndef_info.image_surface, &src_rect, screen_surface, &dst_rect);
+            SDL_BlitSurface(btndef_info.image_surface, &src_rect, accumulation_surface, &dst_rect);
             //TODO, fix this. haven't found it used yet
             //SDL_UpdateRect(screen_surface, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
-            SDL_UpdateTexture(screen_tex, NULL, screen_surface->pixels, screen_surface->pitch);
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, screen_tex, NULL, NULL);
-            SDL_RenderPresent(renderer);
+            SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch);
+            rerender();
             //dirty_rect.clear();
 
             nexttime = SDL_GetTicks();
@@ -3618,7 +3613,6 @@ int PonscripterLabel::bidirectCommand(const pstring& cmd)
 
 int PonscripterLabel::bgcopyCommand(const pstring& cmd)
 {
-    SDL_BlitSurface(screen_surface, NULL, accumulation_surface, NULL);
     fprintf(stderr, "Likely partially-updated command used bgcopyCommand\n");
 
     bg_info.num_of_cells = 1;

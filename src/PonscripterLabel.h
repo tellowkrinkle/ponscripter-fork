@@ -498,7 +498,6 @@ private:
     SDL_Surface* backup_surface;
     // Text + Select_image + Tachi image + background:
 public:
-    SDL_Surface* screen_surface;
     SDL_Window *screen;
     SDL_Renderer *renderer;
     SDL_Texture *screen_tex;

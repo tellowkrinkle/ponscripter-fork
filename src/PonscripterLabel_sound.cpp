@@ -776,7 +776,7 @@ void PonscripterLabel::playAVI(const pstring& filename, bool click_flag)
 
     AVIWrapper* avi = new AVIWrapper();
     if (avi->init(abs_fname, false) == 0
-        && avi->initAV(screen_surface, audio_open_flag) == 0) {
+        && avi->initAV(accumulation_surface, audio_open_flag) == 0) {
         if (avi->play(click_flag)) endCommand();
     }
 

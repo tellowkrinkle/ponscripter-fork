@@ -1210,10 +1210,6 @@ int PonscripterLabel::init(const char* preferred_script)
     image_surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00ff0000,
                         0x0000ff00, 0x000000ff, 0xff000000);
 
-    screen_surface = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0x00ff0000,
-                        0x0000ff00, 0x000000ff, 0xff000000);
-
-
     accumulation_surface =
         AnimationInfo::allocSurface(screen_width, screen_height);
     backup_surface =
@@ -1229,10 +1225,8 @@ int PonscripterLabel::init(const char* preferred_script)
     SDL_SetSurfaceAlphaMod(effect_src_surface, SDL_ALPHA_OPAQUE);
     SDL_SetSurfaceAlphaMod(effect_dst_surface, SDL_ALPHA_OPAQUE);
     SDL_SetSurfaceAlphaMod(effect_tmp_surface, SDL_ALPHA_OPAQUE);
-    SDL_SetSurfaceAlphaMod(screen_surface, SDL_ALPHA_OPAQUE);
 
     SDL_SetSurfaceBlendMode(accumulation_surface, SDL_BLENDMODE_NONE);
-    SDL_SetSurfaceBlendMode(screen_surface, SDL_BLENDMODE_NONE);
     SDL_SetSurfaceBlendMode(backup_surface, SDL_BLENDMODE_NONE);
     SDL_SetSurfaceBlendMode(effect_src_surface, SDL_BLENDMODE_NONE);
     SDL_SetSurfaceBlendMode(effect_dst_surface, SDL_BLENDMODE_NONE);
@@ -1472,9 +1466,8 @@ void PonscripterLabel::flushDirect(SDL_Rect &rect, int refresh_mode, bool update
   refreshSurface(accumulation_surface, &rect, refresh_mode);
 
   if(!updaterect) return;
-  SDL_BlitSurface(accumulation_surface, &rect, screen_surface, &rect);
 
-  if(SDL_UpdateTexture(screen_tex, NULL, screen_surface->pixels, screen_surface->pitch)) {
+  if(SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch)) {
     fprintf(stderr,"Error updating texture: %s\n", SDL_GetError());
   }
 }
