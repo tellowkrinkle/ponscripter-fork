@@ -1452,7 +1452,7 @@ void PonscripterLabel::flush(int refresh_mode, SDL_Rect* rect, bool clear_dirty_
                     flushDirect(dirty_rect.history[i], refresh_mode, false);
                 }
 
-                flushDirect(*rect, refresh_mode);
+                flushDirect(dirty_rect.bounding_box, REFRESH_NONE_MODE);
             }
         }
     }
@@ -1467,8 +1467,13 @@ void PonscripterLabel::flushDirect(SDL_Rect &rect, int refresh_mode, bool update
 
     if(!updaterect) return;
 
+    SDL_Rect r = rect;
+    if (r.w > accumulation_surface->w) r.w = accumulation_surface->w;
+    if (r.h > accumulation_surface->h) r.h = accumulation_surface->h;
+    char* px = (char *)accumulation_surface->pixels + accumulation_surface->pitch * r.y;
+    px += accumulation_surface->format->BytesPerPixel * r.x;
     Uint64 begin = renderTimesFile ? SDL_GetPerformanceCounter() : 0;
-    if(SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch)) {
+    if(SDL_UpdateTexture(screen_tex, &r, px, accumulation_surface->pitch)) {
         fprintf(stderr,"Error updating texture: %s\n", SDL_GetError());
     }
     if (renderTimesFile) {
