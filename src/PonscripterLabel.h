@@ -415,13 +415,16 @@ public:
     /// For render time logging
     RenderEventType lastRenderEvent;
 private:
+    FILE*  renderTimesFile;
+    Uint64 frameNo;
+    double perfMultiplier;
+
     // ----------------------------------------
     // start-up options
     pstring registry_file;
     pstring dll_file;
     pstring getret_str;
     int    getret_int;
-    FILE*  renderTimesFile;
     bool   enable_wheeldown_advance_flag;
     bool   disable_rescale_flag;
     bool   edit_flag;

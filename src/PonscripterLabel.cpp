@@ -1463,13 +1463,18 @@ void PonscripterLabel::flush(int refresh_mode, SDL_Rect* rect, bool clear_dirty_
 
 void PonscripterLabel::flushDirect(SDL_Rect &rect, int refresh_mode, bool updaterect)
 {
-  refreshSurface(accumulation_surface, &rect, refresh_mode);
+    refreshSurface(accumulation_surface, &rect, refresh_mode);
 
-  if(!updaterect) return;
+    if(!updaterect) return;
 
-  if(SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch)) {
-    fprintf(stderr,"Error updating texture: %s\n", SDL_GetError());
-  }
+    Uint64 begin = renderTimesFile ? SDL_GetPerformanceCounter() : 0;
+    if(SDL_UpdateTexture(screen_tex, NULL, accumulation_surface->pixels, accumulation_surface->pitch)) {
+        fprintf(stderr,"Error updating texture: %s\n", SDL_GetError());
+    }
+    if (renderTimesFile) {
+        float msElapsed = (SDL_GetPerformanceCounter() - begin) * perfMultiplier;
+        fprintf(renderTimesFile, "%llu,UpdateTexture,%f\n", frameNo, msElapsed);
+    }
 }
 
 

@@ -1199,8 +1199,8 @@ Uint32 PonscripterLabel::getRefreshRateDelay() {
 int PonscripterLabel::eventLoop()
 {
     SDL_Event event, tmp_event;
-    Uint32 frameNo = 0;
-    double perfMultiplier = 1000.0/SDL_GetPerformanceFrequency();
+    frameNo = 0;
+    perfMultiplier = 1000.0/SDL_GetPerformanceFrequency();
 
     /* Note, this rate can change if the window is dragged to a new
        screen or the monitor settings are changed while running.
@@ -1411,7 +1411,7 @@ int PonscripterLabel::eventLoop()
                             case RENDER_EVENT_EFFECT:     eventName = "Effect";     break;
                             case RENDER_EVENT_LOAD_IMAGE: eventName = "ImageLoad";  break;
                         }
-                        fprintf(renderTimesFile, "%d,%s,%f\n", frameNo, eventName, msElapsed);
+                        fprintf(renderTimesFile, "%llu,%s,%f\n", frameNo, eventName, msElapsed);
                     }
                 } else if(last_refresh <= current_time && refresh_delay >= (current_time - last_refresh)) {
                     SDL_Delay(std::min(refresh_delay / 3, refresh_delay - (current_time - last_refresh)));
