@@ -373,7 +373,7 @@ protected:
     void flushEventSub(SDL_Event &event);
     void flushEvent();
     void startTimer(int count);
-    void advancePhase(int count = 0);
+    void advancePhase(int count = 0, bool relativeToNow = true);
     void queueRerender();
     void trapHandler();
     void initSDL();

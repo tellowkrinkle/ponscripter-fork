@@ -739,7 +739,7 @@ int PonscripterLabel::processText()
                 wait_time = default_text_speed[text_speed_no];
             else
                 wait_time = sentence_font.wait_time;
-            advancePhase(wait_time * 100 / global_speed_modifier);
+            advancePhase(wait_time * 100 / global_speed_modifier, false);
             return RET_WAIT | RET_NOREAD;
         }
         event_mode = IDLE_EVENT_MODE;

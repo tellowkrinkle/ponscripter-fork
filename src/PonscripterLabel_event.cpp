@@ -282,8 +282,10 @@ void PonscripterLabel::startTimer(int count)
 }
 
 
-void PonscripterLabel::advancePhase(int count) {
-    timer_event_time = SDL_GetTicks() + count;
+void PonscripterLabel::advancePhase(int count, bool relativeToNow) {
+    Uint32 now = SDL_GetTicks();
+    timer_event_time = (relativeToNow ? now : timer_event_time) + count;
+    if (timer_event_time < now) timer_event_time = now;
     timer_event_flag = true;
 
     SDL_Event event;
