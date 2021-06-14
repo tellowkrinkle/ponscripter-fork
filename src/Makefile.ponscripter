@@ -33,7 +33,7 @@ GUI_OBJS = PonscripterLabel$(OBJSUFFIX)					\
 	resize_image$(OBJSUFFIX) encoding$(OBJSUFFIX) font$(OBJSUFFIX)	\
 	bstrlib$(OBJSUFFIX) bstrwrap$(OBJSUFFIX) pstring$(OBJSUFFIX)	\
 	cp932_encoding$(OBJSUFFIX) expression$(OBJSUFFIX) prng$(OBJSUFFIX) \
-	graphics_accelerated$(OBJSUFFIX)
+	graphics_accelerated$(OBJSUFFIX) Compositor$(OBJSUFFIX)
 DECODER_OBJS = DirectReader$(OBJSUFFIX) SarReader$(OBJSUFFIX)	\
 	NsaReader$(OBJSUFFIX)
 PONSCR_OBJS = Ponscripter$(OBJSUFFIX) $(DECODER_OBJS)		\

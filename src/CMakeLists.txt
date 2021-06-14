@@ -19,6 +19,8 @@ add_executable(ponscr
 	cp932_encoding.cpp
 	cp932_tables.h
 	defs.h
+	Compositor.cpp
+	Compositor.h
 	DirectReader.cpp
 	DirectReader.h
 	DirPaths.cpp
